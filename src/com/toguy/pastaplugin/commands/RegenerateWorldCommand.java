@@ -3,6 +3,8 @@ package com.toguy.pastaplugin.commands;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.command.Command;
@@ -34,5 +36,15 @@ public class RegenerateWorldCommand implements CommandExecutor {
 		WorldCreator creator = new WorldCreator("UHC-" + UUID.randomUUID().toString().split("-")[0]);
 		creator.generateStructures(true);
 		world = creator.createWorld();
+		
+		this.generateSpawnPlatform();
+	}
+	
+	/**
+	 * Génère la plateforme de spawn
+	 */
+	private void generateSpawnPlatform() {
+		//world.setSpawnLocation(new Location(world, 0, 121, 0));
+		//world.getBlockAt(new Location(world, 0, 120, 0)).setType(Material.BLACK_STAINED_GLASS_PANE);
 	}
 }
