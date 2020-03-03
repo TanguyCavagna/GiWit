@@ -1,0 +1,25 @@
+name: GiWit
+version: 1.0
+main: com.toguy.pastaplugin.GiWit
+author: toguy
+description: Salut !
+
+commands:
+  twitch:
+    usage: /<command>
+    description: A test command !
+  warn:
+    usage: /<command>
+    description: Affiche un message de warning a tous les joueurs
+  alert:
+    usage: /<command>
+    description: Affiche un titre a tous les joueurs
+  gui:
+    usage: /<command>
+    description: Commande a supprimer
+  swap:
+    usage: /<command>
+    description: Swap les joueurs entre eux ou les inventaires
+  regenerate:
+    usage: /<command>
+    description: Regenere le monde et teleporte les joueurs dans celui-ci
