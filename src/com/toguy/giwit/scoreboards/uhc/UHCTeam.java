@@ -8,7 +8,7 @@ import org.bukkit.scoreboard.Team;
 public class UHCTeam {
 
 	//===================== Start Constantes =====================
-	private final String PREFIX = "◼️";
+	private final String PREFIX = "⏺";
 	
 	//===================== Start Champs =====================
 	private String _name;

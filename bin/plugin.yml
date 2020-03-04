@@ -1,6 +1,7 @@
 name: GiWit
 version: 1.0
-main: com.toguy.pastaplugin.GiWit
+api-version: 1.13
+main: com.toguy.giwit.GiWit
 author: toguy
 description: Salut !
 

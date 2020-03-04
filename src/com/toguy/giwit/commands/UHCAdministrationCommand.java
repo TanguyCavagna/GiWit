@@ -23,11 +23,21 @@ public class UHCAdministrationCommand implements CommandExecutor {
 	
 	private JavaPlugin plugin = GiWit.getPlugin(GiWit.class);
 	
+	// Variable de la configuration
+	private Boolean moving;
+	private int startSize;
+	private int endSize;
+	private int timeToShrink;
+	private int timeBeforeShrink;
+	private int timeToStartWhenReady;
+	
 	private World world;
 	public WorldBorder wb;
 	
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+		this.getConfig();
+		
 		if (sender instanceof Player) {
 			Player player = (Player)sender;
 			
@@ -37,37 +47,62 @@ public class UHCAdministrationCommand implements CommandExecutor {
 					if (((Player)sender).isOp()) {
 						createWorld();
 						
-						//for (Player player : Bukkit.getOnlinePlayers())
-						//	player.teleport(world.getSpawnLocation());
+						for (Player p : Bukkit.getOnlinePlayers())
+							p.teleport(world.getSpawnLocation());
 					}
 				}
 			}
 			
 			// Fait rapetisser le monde
 			if (args[0].equalsIgnoreCase("shrink")) {
-				if (wb != null)
-					wb.setSize(100, 20);
-				else
-					this.sendClickableCommandToPlayer("Tu dois en premier lieu commencer la partie avec la commande : ", "/uhc start", "", player);
+				if (this.moving) {
+					if (wb != null)
+						wb.setSize(this.endSize, this.timeToShrink);
+					else
+						this.sendClickableCommandToPlayer("Tu dois en premier lieu commencer la partie avec la commande : ", "/uhc start", "", player);
+				}
 			}
 			
 			// Commence la partie
 			if (args[0].equalsIgnoreCase("start")) {
-				if (this.world != null) {
-					int shrinkAfter = 20;
-					int shrinkDuring = 2;
-					int shrinkTo = 120;
+
+				// Compte a rebour avant début de partie
+				int startCountdown = Bukkit.getScheduler().scheduleSyncRepeatingTask(this.plugin, new Runnable() {
+
+					private int countdown = timeToStartWhenReady;
 					
-					// Fait bouger la border après un durée donnée et pendant une durée donnée
-					Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, new Runnable() {
-						@Override
-						public void run() {
-							wb.setSize(shrinkTo, shrinkDuring);
+					@Override
+					public void run() {
+						countdown--;
+						
+						Bukkit.broadcastMessage("Start in " + countdown + "s");
+					}
+					
+				}, 0L, 20L);
+				
+				// S'éxécute après le compte a rebour de début de partie
+				Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, new Runnable() {
+
+					@Override
+					public void run() {
+						Bukkit.getScheduler().cancelTask(startCountdown);
+						
+						if (moving) {
+							if (world != null) {
+								// Fait bouger la border après un durée donnée et pendant une durée donnée
+								Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+									@Override
+									public void run() {
+										wb.setSize(endSize, timeToShrink);
+									}
+								}, timeBeforeShrink);
+							}
+							else
+								sendClickableCommandToPlayer("Tu dois en premier lieu re générer le monde avec la commande : ", "/uhc remake", "", player);
 						}
-					}, shrinkAfter);
-				}
-				else
-					this.sendClickableCommandToPlayer("Tu dois en premier lieu re générer le monde avec la commande : ", "/uhc remake", "", player);
+					}
+					
+				}, this.timeToStartWhenReady * 20);
 			}
 		}
 		
@@ -85,7 +120,7 @@ public class UHCAdministrationCommand implements CommandExecutor {
 		world = Bukkit.getWorld("world");
 		
 		this.generateSpawnPlatform();
-		this.createWorldBorder(0, 0, 200);
+		this.createWorldBorder(0, 0, this.startSize);
 	}
 
 	/**
@@ -180,5 +215,17 @@ public class UHCAdministrationCommand implements CommandExecutor {
 		mainMsg.addExtra(sufix);
 		
 		player.spigot().sendMessage(mainMsg);
+	}
+
+	/**
+	 * Récupère la config du plugin
+	 */
+	private void getConfig() {
+		this.moving = this.plugin.getConfig().getBoolean("border.moving");
+		this.startSize = this.plugin.getConfig().getInt("border.start-size");
+		this.endSize = this.plugin.getConfig().getInt("border.end-size");
+		this.timeToShrink = this.plugin.getConfig().getInt("border.time-to-shrink");
+		this.timeBeforeShrink = this.plugin.getConfig().getInt("border.time-before-shrink");
+		this.timeToStartWhenReady = this.plugin.getConfig().getInt("time-to-start-when-ready");
 	}
 }

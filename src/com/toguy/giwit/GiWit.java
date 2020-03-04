@@ -23,6 +23,7 @@ import com.toguy.giwit.commands.UHCAdministrationCommand;
 import com.toguy.giwit.events.ClickGuiEvent;
 import com.toguy.giwit.events.UHCEvent;
 import com.toguy.giwit.scoreboards.uhc.TeamScoreboards;
+import com.toguy.giwit.scoreboards.uhc.UHCTeam;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -44,15 +45,13 @@ public class GiWit extends JavaPlugin implements Listener {
 		
 	private Twitch twitch;
 	
-	
-	public GiWit() {
-		// TODO Auto-generated constructor stub
-	}
-	
 	/**
 	 * Méthode appelée lors de l'activation du plugin
 	 */
 	public void onEnable() {
+		this.getConfig().options().copyDefaults();
+		this.saveDefaultConfig();
+		
 		// Setup des commandes
 		getCommand("uhc").setExecutor(new UHCAdministrationCommand());
 		getCommand("gui").setExecutor(new GUICommand());
@@ -94,6 +93,8 @@ public class GiWit extends JavaPlugin implements Listener {
 		// construit les equipes de base
 		for (Player player : Bukkit.getOnlinePlayers())
 			this.setupPlayerInfos(player);
+		
+		TeamScoreboards.getInstance().getTeams(); // Pour mettre a jour la liste des équipes
 	}
 	
 	/**
@@ -137,7 +138,7 @@ public class GiWit extends JavaPlugin implements Listener {
 								Twitch.Stream stream = g.fromJson(data.get(0).toString(), Twitch.Stream.class);
 																
 								if (stream.isLive()) {
-									this.streamers.setSuffix(ChatColor.RED + " �? LIVE " + ChatColor.LIGHT_PURPLE + "(" + stream.getViewerCount().toString() + ")");
+									this.streamers.setSuffix(ChatColor.RED + " ⏺ LIVE " + ChatColor.LIGHT_PURPLE + "(" + stream.getViewerCount().toString() + ")");
 									this.streamers.addEntry(p.getName());
 									
 									p.setScoreboard(this.board);
@@ -245,11 +246,62 @@ public class GiWit extends JavaPlugin implements Listener {
 	public void onPlayerSay(AsyncPlayerChatEvent e) {
 		Player player = e.getPlayer();
 		String message = e.getMessage();
+		Boolean chatPrefixEnable = this.getConfig().getBoolean("chat-prefix.enable");
+		String teamMessagePrefix = this.getConfig().getString("chat-prefix.team-prefix");
+		String globalMessagePrefix = this.getConfig().getString("chat-prefix.global-prefix");
+		
+		// Parcoure toutes les équipes de l'uhc pour mettre la couleur correspondante dans le chat
+		for (UHCTeam uhcTeam : TeamScoreboards.getInstance().getTeams().values()) {
+			Team t = uhcTeam.getTeam();
+			
+			if (t.hasEntry(player.getName())) {
+				if (this.streamers.getEntries().contains(player.getName()))
+					e.setFormat(uhcTeam.getColor() + this.twitch.getPlayerInPlayerTwichName(player.getName()) + ChatColor.GRAY + " (" + player.getName() + ")" + ChatColor.RED + " [LIVE]" + ChatColor.WHITE + " : " + message);
+				else
+					e.setFormat(uhcTeam.getColor() + player.getDisplayName() + ChatColor.WHITE + ": " + message);
 				
-		if (this.streamers.getEntries().contains(player.getName()))
-			e.setFormat(ChatColor.WHITE + this.twitch.getPlayerInPlayerTwichName(player.getName()) + ChatColor.GRAY + " (" + player.getName() + ")" + ChatColor.RED + " [LIVE]" + ChatColor.WHITE + " : " + message);
-		else
-			e.setFormat(ChatColor.WHITE + player.getDisplayName() + ": " + message);
+				if (chatPrefixEnable) {
+					//========================================
+					// ETANT DONNER QUE LE JOUEUR EST DANS UNE EQUIPE, IL FAUT QU'IL COMMUNIQUE DE FACON PRECISE
+					//========================================
+					// Envoie le message a tout le monde
+					if (message.startsWith(globalMessagePrefix)) {
+						e.setCancelled(true);
+						
+						String format = e.getFormat();
+						// Ne fait rien de special
+						int charPos = format.indexOf(globalMessagePrefix);
+					    if (charPos > 0)
+					    	format = new StringBuilder(format).deleteCharAt(charPos).toString();
+					    
+					    Bukkit.broadcastMessage(format);
+					} 
+					// Envoie le message uniquement à ceux de la meme équipe
+					else if (message.startsWith(teamMessagePrefix)) {
+						e.setCancelled(true);
+									
+						String format = e.getFormat();
+						
+						int charPos = format.indexOf(teamMessagePrefix);
+					    if (charPos > 0)
+					    	format = new StringBuilder(format).deleteCharAt(charPos).toString();
+						
+						for (String playerName : t.getEntries()) {
+							Player teamMate = Bukkit.getServer().getPlayer(playerName);
+							teamMate.sendMessage(format);
+						}
+					} 
+					// Annule le message si rien n'est indiquer
+					else
+						e.setCancelled(true);
+				}
+				
+				return;
+			}
+		}
+		
+		// Si aucun équipe n'a été trouvée pour le joueur, mettre un format par défaut
+		e.setFormat(ChatColor.WHITE + player.getDisplayName() + ": " + message);
 	}
 	
 	/**

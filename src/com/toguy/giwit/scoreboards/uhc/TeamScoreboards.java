@@ -7,8 +7,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
+
+import com.toguy.giwit.GiWit;
 
 /**
  * 
@@ -44,6 +47,7 @@ public class TeamScoreboards {
 	//===================== Start Champs =====================
 	private Scoreboard teamScoreboard;
 	private HashMap<String, UHCTeam> teams;
+	private JavaPlugin plugin; 
 	
 	//===================== Start Propiétés =====================
 	public HashMap<String, UHCTeam> getTeams() {
@@ -59,11 +63,22 @@ public class TeamScoreboards {
 		
 		this.teamScoreboard = manager.getNewScoreboard();
 		this.teams = new HashMap<String, UHCTeam>();
+		this.plugin = GiWit.getPlugin(GiWit.class);
 		
-		this.teams.put("Rouge", new UHCTeam("Rouge", ChatColor.RED, Material.RED_WOOL, 1, this.teamScoreboard));
-		this.teams.put("Bleu", new UHCTeam("Bleu", ChatColor.BLUE, Material.BLUE_WOOL, 2, this.teamScoreboard));
-		this.teams.put("Vert", new UHCTeam("Vert", ChatColor.GREEN, Material.LIME_WOOL, 2, this.teamScoreboard));
-		this.teams.put("Violet", new UHCTeam("Violet", ChatColor.DARK_PURPLE, Material.PURPLE_WOOL, 2, this.teamScoreboard));
+		// Créer les team depuis le fichier de config
+		for (int i = 0; i < this.plugin.getConfig().getInt("team-count"); i++) {
+			String name = this.plugin.getConfig().getString("teams.team-" + (i + 1) + ".name");
+			String color = this.plugin.getConfig().getString("teams.team-" + (i + 1) + ".color");
+			String material = this.plugin.getConfig().getString("teams.team-" + (i + 1) + ".material");
+			int maximumMembers = this.plugin.getConfig().getInt("teams.team-" + (i + 1) + ".maximum-members");
+						
+			this.teams.put(name, new UHCTeam(name, ChatColor.valueOf(color), Material.valueOf(material), maximumMembers, this.teamScoreboard));
+		}
+		
+		//this.teams.put("Rouge", new UHCTeam("Rouge", ChatColor.RED, Material.RED_WOOL, 1, this.teamScoreboard));
+		//this.teams.put("Bleu", new UHCTeam("Bleu", ChatColor.BLUE, Material.BLUE_WOOL, 2, this.teamScoreboard));
+		//this.teams.put("Vert", new UHCTeam("Vert", ChatColor.GREEN, Material.LIME_WOOL, 2, this.teamScoreboard));
+		//this.teams.put("Violet", new UHCTeam("Violet", ChatColor.DARK_PURPLE, Material.PURPLE_WOOL, 2, this.teamScoreboard));
 	}
 	
 	/**

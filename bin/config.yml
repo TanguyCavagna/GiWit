@@ -1,0 +1,61 @@
+#Choose the coundown time to start the game when enough teams are ready
+#This value must be set to 6 or more. If you set a value of 5 or less, it will cause an unpredictable behavior.
+time-to-start-when-ready: 10
+
+# This feature might not make a lot of sense for UHC but if you want to enable natural health regen you can do it here.
+enable-health-regen: false
+
+# Enable to have a message and sound every x minutes. (This can be used for youtubers to know when to end their episodes.)
+episode-markers:
+  enable: false
+  # Duration of the episodes in seconds.
+  delay: 900
+
+# Chat prefix, when enabled, messages starting with @ will display in team chat, when starting with ! they will be displayed in global chat.
+# But is a player is in a team and dosen't one of those prefixes, the message will be canceled
+chat-prefix:
+  enable: true
+  team-prefix: '@'
+  global-prefix: '!'
+
+border:
+  #Set it to true to make the border reduce slowly
+  moving: true
+  
+  #Sarting size of the border (400 means +400x, -400x. +400z, -400z)
+  start-size: 200
+
+  #End size of the border (400 means +400x, -400x. +400z, -400z)
+  end-size: 100
+
+  #If moving is set to true, the time in seconds for the border to shrink to end-size
+  time-to-shrink: 2
+
+  #If moving is set to true, the time in seconds for the border before it start moving
+  time-before-shrink: 5
+
+#Be sure to have the correct amount of team in the team list bellow
+team-count: 4
+
+#The total of team must be the same as the team-count
+teams:
+  team-1:
+    name: "Rouge"
+    color: "RED"
+    material: "RED_WOOL"
+    maximum-members: 1
+  team-2: 
+    name: "Bleu"
+    color: "BLUE"
+    material: "BLUE_WOOL"
+    maximum-members: 2
+  team-3:
+    name: "Vert"
+    color: "GREEN"
+    material: "LIME_WOOL"
+    maximum-members: 2
+  team-4: 
+    name: "Violet"
+    color: "DARK_PURPLE"
+    material: "PURPLE_WOOL"
+    maximum-members: 2
