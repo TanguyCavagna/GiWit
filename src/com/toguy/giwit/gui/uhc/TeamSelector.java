@@ -1,4 +1,4 @@
-package com.toguy.pastaplugin.gui.uhc;
+package com.toguy.giwit.gui.uhc;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -13,8 +13,8 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import com.toguy.pastaplugin.scoreboards.uhc.TeamScoreboards;
-import com.toguy.pastaplugin.scoreboards.uhc.UHCTeam;
+import com.toguy.giwit.scoreboards.uhc.TeamScoreboards;
+import com.toguy.giwit.scoreboards.uhc.UHCTeam;
 
 public class TeamSelector {
 

@@ -1,4 +1,4 @@
-package com.toguy.pastaplugin.events;
+package com.toguy.giwit.events;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -9,8 +9,8 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
-import com.toguy.pastaplugin.gui.uhc.TeamSelector;
-import com.toguy.pastaplugin.scoreboards.uhc.TeamScoreboards;
+import com.toguy.giwit.gui.uhc.TeamSelector;
+import com.toguy.giwit.scoreboards.uhc.TeamScoreboards;
 
 public class UHCEvent implements Listener {
 	

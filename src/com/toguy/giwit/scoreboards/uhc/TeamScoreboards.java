@@ -1,4 +1,4 @@
-package com.toguy.pastaplugin.scoreboards.uhc;
+package com.toguy.giwit.scoreboards.uhc;
 
 import java.util.HashMap;
 import java.util.Set;

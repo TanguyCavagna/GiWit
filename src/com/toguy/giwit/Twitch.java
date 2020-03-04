@@ -1,4 +1,4 @@
-package com.toguy.pastaplugin;
+package com.toguy.giwit;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

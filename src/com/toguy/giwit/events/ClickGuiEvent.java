@@ -1,4 +1,4 @@
-package com.toguy.pastaplugin.events;
+package com.toguy.giwit.events;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

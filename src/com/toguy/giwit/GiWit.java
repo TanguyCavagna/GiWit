@@ -1,4 +1,4 @@
-package com.toguy.pastaplugin;
+package com.toguy.giwit;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -17,12 +17,12 @@ import org.json.simple.parser.*;
 import java.util.Arrays;
 
 import com.google.gson.Gson;
-import com.toguy.pastaplugin.commands.GUICommand;
-import com.toguy.pastaplugin.commands.SwapCommand;
-import com.toguy.pastaplugin.commands.UHCAdministrationCommand;
-import com.toguy.pastaplugin.events.ClickGuiEvent;
-import com.toguy.pastaplugin.events.UHCEvent;
-import com.toguy.pastaplugin.scoreboards.uhc.TeamScoreboards;
+import com.toguy.giwit.commands.GUICommand;
+import com.toguy.giwit.commands.SwapCommand;
+import com.toguy.giwit.commands.UHCAdministrationCommand;
+import com.toguy.giwit.events.ClickGuiEvent;
+import com.toguy.giwit.events.UHCEvent;
+import com.toguy.giwit.scoreboards.uhc.TeamScoreboards;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -54,7 +54,7 @@ public class GiWit extends JavaPlugin implements Listener {
 	 */
 	public void onEnable() {
 		// Setup des commandes
-		getCommand("uhc").setExecutor(new UHCAdministrationCommand(this));
+		getCommand("uhc").setExecutor(new UHCAdministrationCommand());
 		getCommand("gui").setExecutor(new GUICommand());
 		getCommand("swap").setExecutor(new SwapCommand());
 		
@@ -137,7 +137,7 @@ public class GiWit extends JavaPlugin implements Listener {
 								Twitch.Stream stream = g.fromJson(data.get(0).toString(), Twitch.Stream.class);
 																
 								if (stream.isLive()) {
-									this.streamers.setSuffix(ChatColor.RED + " ● LIVE " + ChatColor.LIGHT_PURPLE + "(" + stream.getViewerCount().toString() + ")");
+									this.streamers.setSuffix(ChatColor.RED + " �? LIVE " + ChatColor.LIGHT_PURPLE + "(" + stream.getViewerCount().toString() + ")");
 									this.streamers.addEntry(p.getName());
 									
 									p.setScoreboard(this.board);

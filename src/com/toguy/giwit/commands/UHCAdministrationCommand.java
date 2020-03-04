@@ -1,4 +1,4 @@
-package com.toguy.pastaplugin.commands;
+package com.toguy.giwit.commands;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -11,6 +11,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.toguy.giwit.GiWit;
+
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -19,19 +21,10 @@ import net.md_5.bungee.api.chat.TextComponent;
 
 public class UHCAdministrationCommand implements CommandExecutor {
 	
-	private JavaPlugin plugin;
+	private JavaPlugin plugin = GiWit.getPlugin(GiWit.class);
 	
 	private World world;
 	public WorldBorder wb;
-	
-	/**
-	 * Administre l'UHC
-	 * 
-	 * @param pPlugin Plugin principal (GiWit)
-	 */
-	public UHCAdministrationCommand(JavaPlugin pPlugin) {
-		this.plugin = pPlugin;
-	}
 	
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {

@@ -1,4 +1,4 @@
-package com.toguy.pastaplugin.commands;
+package com.toguy.giwit.commands;
 
 import java.util.ArrayList;
 
