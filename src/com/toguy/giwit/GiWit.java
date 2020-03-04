@@ -260,41 +260,8 @@ public class GiWit extends JavaPlugin implements Listener {
 				else
 					e.setFormat(uhcTeam.getColor() + player.getDisplayName() + ChatColor.WHITE + ": " + message);
 				
-				if (chatPrefixEnable) {
-					//========================================
-					// ETANT DONNER QUE LE JOUEUR EST DANS UNE EQUIPE, IL FAUT QU'IL COMMUNIQUE DE FACON PRECISE
-					//========================================
-					// Envoie le message a tout le monde
-					if (message.startsWith(globalMessagePrefix)) {
-						e.setCancelled(true);
-						
-						String format = e.getFormat();
-						// Ne fait rien de special
-						int charPos = format.indexOf(globalMessagePrefix);
-					    if (charPos > 0)
-					    	format = new StringBuilder(format).deleteCharAt(charPos).toString();
-					    
-					    Bukkit.broadcastMessage(format);
-					} 
-					// Envoie le message uniquement à ceux de la meme équipe
-					else if (message.startsWith(teamMessagePrefix)) {
-						e.setCancelled(true);
-									
-						String format = e.getFormat();
-						
-						int charPos = format.indexOf(teamMessagePrefix);
-					    if (charPos > 0)
-					    	format = new StringBuilder(format).deleteCharAt(charPos).toString();
-						
-						for (String playerName : t.getEntries()) {
-							Player teamMate = Bukkit.getServer().getPlayer(playerName);
-							teamMate.sendMessage(format);
-						}
-					} 
-					// Annule le message si rien n'est indiquer
-					else
-						e.setCancelled(true);
-				}
+				if (chatPrefixEnable)
+					e = updateMessageDestinationFromPrefixes(e, message, globalMessagePrefix, teamMessagePrefix, t);
 				
 				return;
 			}
@@ -302,6 +269,53 @@ public class GiWit extends JavaPlugin implements Listener {
 		
 		// Si aucun équipe n'a été trouvée pour le joueur, mettre un format par défaut
 		e.setFormat(ChatColor.WHITE + player.getDisplayName() + ": " + message);
+	}
+	
+	/**
+	 * Modifie la cible du message en fonction du préfix du message
+	 * @param e Evenement de chat
+	 * @param message Message envoyer
+	 * @param globalMessagePrefix Prefix du global
+	 * @param teamMessagePrefix Prefix de la team
+	 * @param t Team dans laquelle le joueur se trouve
+	 * @return
+	 */
+	private AsyncPlayerChatEvent updateMessageDestinationFromPrefixes(AsyncPlayerChatEvent e, String message, String globalMessagePrefix, String teamMessagePrefix, Team t) {
+		//========================================
+		// ETANT DONNER QUE LE JOUEUR EST DANS UNE EQUIPE, IL FAUT QU'IL COMMUNIQUE DE FACON PRECISE
+		//========================================
+		// Envoie le message a tout le monde
+		if (message.startsWith(globalMessagePrefix)) {
+			e.setCancelled(true);
+			
+			String format = e.getFormat();
+			// Ne fait rien de special
+			int charPos = format.indexOf(globalMessagePrefix);
+		    if (charPos > 0)
+		    	format = new StringBuilder(format).deleteCharAt(charPos).toString();
+		    
+		    Bukkit.broadcastMessage(format);
+		} 
+		// Envoie le message uniquement à ceux de la meme équipe
+		else if (message.startsWith(teamMessagePrefix)) {
+			e.setCancelled(true);
+						
+			String format = e.getFormat();
+			
+			int charPos = format.indexOf(teamMessagePrefix);
+		    if (charPos > 0)
+		    	format = new StringBuilder(format).deleteCharAt(charPos).toString();
+			
+			for (String playerName : t.getEntries()) {
+				Player teamMate = Bukkit.getServer().getPlayer(playerName);
+				teamMate.sendMessage(format);
+			}
+		} 
+		// Annule le message si rien n'est indiquer
+		else
+			e.setCancelled(true);
+		
+		return e;
 	}
 	
 	/**
