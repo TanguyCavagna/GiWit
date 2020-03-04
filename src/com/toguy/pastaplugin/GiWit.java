@@ -1,6 +1,7 @@
 package com.toguy.pastaplugin;
 
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -17,8 +18,8 @@ import java.util.Arrays;
 
 import com.google.gson.Gson;
 import com.toguy.pastaplugin.commands.GUICommand;
-import com.toguy.pastaplugin.commands.RegenerateWorldCommand;
 import com.toguy.pastaplugin.commands.SwapCommand;
+import com.toguy.pastaplugin.commands.UHCAdministrationCommand;
 import com.toguy.pastaplugin.events.ClickGuiEvent;
 import com.toguy.pastaplugin.events.UHCEvent;
 import com.toguy.pastaplugin.scoreboards.uhc.TeamScoreboards;
@@ -43,12 +44,17 @@ public class GiWit extends JavaPlugin implements Listener {
 		
 	private Twitch twitch;
 	
+	
+	public GiWit() {
+		// TODO Auto-generated constructor stub
+	}
+	
 	/**
 	 * Méthode appelée lors de l'activation du plugin
 	 */
 	public void onEnable() {
 		// Setup des commandes
-		getCommand("regenerate").setExecutor(new RegenerateWorldCommand());
+		getCommand("uhc").setExecutor(new UHCAdministrationCommand(this));
 		getCommand("gui").setExecutor(new GUICommand());
 		getCommand("swap").setExecutor(new SwapCommand());
 		
@@ -87,7 +93,7 @@ public class GiWit extends JavaPlugin implements Listener {
 		
 		// construit les equipes de base
 		for (Player player : Bukkit.getOnlinePlayers())
-			this.setupPlayerScorboard(player);
+			this.setupPlayerInfos(player);
 	}
 	
 	/**
@@ -254,7 +260,7 @@ public class GiWit extends JavaPlugin implements Listener {
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent e) {
 		Player player = e.getPlayer();
-		this.setupPlayerScorboard(player);
+		this.setupPlayerInfos(player);
 	}
 	
 	/**
@@ -262,10 +268,13 @@ public class GiWit extends JavaPlugin implements Listener {
 	 * 
 	 * @param player Joueur a setup
 	 */
-	private void setupPlayerScorboard(Player player) {
+	private void setupPlayerInfos(Player player) {
+		player.setGameMode(GameMode.ADVENTURE);
+		
 		if (player.isOp()) {
 			this.admins.addEntry(player.getName());
 			player.setScoreboard(this.board);
+			player.setGameMode(GameMode.CREATIVE);
 		}
 	}
 }

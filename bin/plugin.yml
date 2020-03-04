@@ -20,6 +20,6 @@ commands:
   swap:
     usage: /<command>
     description: Swap les joueurs entre eux ou les inventaires
-  regenerate:
+  uhc:
     usage: /<command>
-    description: Regenere le monde et teleporte les joueurs dans celui-ci
+    description: Gere les parametres du monde
