@@ -31,14 +31,19 @@ public class UHCAdministrationCommand implements CommandExecutor {
 	
 	// Variable de la configuration
 	private Scoreboard board;
+	
 	private Boolean moving;
 	private int startSize;
 	private int endSize;
 	private int timeToShrink;
 	private int timeBeforeShrink;
 	private int timeToStartWhenReady;
+	
 	private Episode episode;
 	private int episodeTimeUpdater = 0;
+	
+	private int timeBeforePvp;
+	
 	private Boolean uhcStarted = false;
 	
 	private World world;
@@ -251,6 +256,7 @@ public class UHCAdministrationCommand implements CommandExecutor {
 		this.timeToShrink = this.plugin.getConfig().getInt("border.time-to-shrink");
 		this.timeBeforeShrink = this.plugin.getConfig().getInt("border.time-before-shrink");
 		this.timeToStartWhenReady = this.plugin.getConfig().getInt("time-to-start-when-ready");
+		this.timeBeforePvp = this.plugin.getConfig().getInt("gentlemen-rule");
 	}
 
 	/**
@@ -270,27 +276,47 @@ public class UHCAdministrationCommand implements CommandExecutor {
 		if (this.board.getTeam("timeLeft") != null)
 			this.board.getTeam("timeLeft").unregister();
 		
+		if (this.board.getTeam("worldBorder") != null)
+			this.board.getTeam("worldBorder").unregister();
+		
+		if (this.board.getTeam("pvp") != null)
+			this.board.getTeam("pvp").unregister();
+		
 		// Créer notre scoreboard de sidebar
-		Objective objective = this.board.registerNewObjective("GiWit", "dummy", ChatColor.AQUA + "GiWit");
+		Objective objective = this.board.registerNewObjective("GiWit", "dummy", ChatColor.RED + "GiWit");
 		objective.setDisplaySlot(DisplaySlot.SIDEBAR);
 		
 		Team episodeNumber = this.board.registerNewTeam("episode");
-		episodeNumber.addEntry(ChatColor.GOLD + "Episode: ");
+		episodeNumber.addEntry(ChatColor.RED + "Episode: " + ChatColor.WHITE);
 		episodeNumber.setPrefix("");
-		episodeNumber.setSuffix("");
 		episodeNumber.setSuffix(episode.getEpisodeNbr() + "");
 		
 		Team episodeTimeLeft = this.board.registerNewTeam("timeLeft");
-		episodeTimeLeft.addEntry(ChatColor.GOLD + "Temps restant: " + ChatColor.WHITE);
+		episodeTimeLeft.addEntry(ChatColor.RED + "Temps restant: " + ChatColor.WHITE);
 		episodeTimeLeft.setPrefix("");
-		episodeTimeLeft.setSuffix("");
 		episodeTimeLeft.setSuffix(episode.getTimeLeftHasString() + "");
 		
-		objective.getScore(ChatColor.AQUA + "---------------------").setScore(4);
-		objective.getScore("").setScore(3);
-		objective.getScore(ChatColor.GOLD + "Episode: ").setScore(2);
-		objective.getScore(ChatColor.GOLD + "Temps restant: " + ChatColor.WHITE).setScore(1);
-		objective.getScore(" ").setScore(0);
+		Team pvp = this.board.registerNewTeam("pvp");
+		pvp.addEntry(ChatColor.RED + "PVP: ");
+		pvp.setPrefix("");
+		if (this.timeBeforePvp == -1)
+			pvp.setSuffix(ChatColor.GREEN + "✔");
+		else
+			pvp.setSuffix(ChatColor.DARK_RED + "✖");
+		
+		Team worldBorderInfo = this.board.registerNewTeam("worldBorder");
+		worldBorderInfo.addEntry(ChatColor.RED + "Bordures: " + ChatColor.WHITE);
+		worldBorderInfo.setPrefix("");
+		worldBorderInfo.setSuffix("+" + (int)wb.getSize() + "/-" + (int)wb.getSize());
+		
+		objective.getScore(ChatColor.GRAY + "---------------------").setScore(7);
+		objective.getScore(ChatColor.RED + "Episode: " + ChatColor.WHITE).setScore(6);
+		objective.getScore(ChatColor.RED + "Temps restant: " + ChatColor.WHITE).setScore(5);
+		objective.getScore("").setScore(4);
+		objective.getScore(ChatColor.RED + "Bordures: " + ChatColor.WHITE).setScore(3);
+		objective.getScore(" ").setScore(2);
+		objective.getScore(ChatColor.RED + "PVP: ").setScore(1);
+		objective.getScore(ChatColor.GRAY + "---------------------" + ChatColor.WHITE).setScore(0);
 
 		// Met a jour les informations de l'espisode
 		episodeTimeUpdater = Bukkit.getScheduler().scheduleSyncRepeatingTask(this.plugin, new Runnable() {
@@ -304,6 +330,17 @@ public class UHCAdministrationCommand implements CommandExecutor {
 					if (episode.getTimeLeft() <= 0) {
 						episode.nextEpisode();
 						episodeNumber.setSuffix(episode.getEpisodeNbr() + "");
+					}
+					
+					worldBorderInfo.setSuffix("+" + (int)wb.getSize() + "/-" + (int)wb.getSize());
+					
+					if (timeBeforePvp != -1) {
+						if (timeBeforePvp <= 0) {
+							pvp.setSuffix(ChatColor.GREEN + "✔");
+						} else {
+							pvp.setSuffix(ChatColor.DARK_RED + "✖");
+							timeBeforePvp--;
+						}
 					}
 				}
 			}

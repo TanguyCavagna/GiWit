@@ -45,7 +45,9 @@ public class Episode {
 	 * @return mm:ss
 	 */
 	public String getTimeLeftHasString() {
-		return this.intTo2DigitFormat((int)Math.floor(this.timeLeft / 60)) + ":" + this.intTo2DigitFormat((this.timeLeft % 60));
+		int minutes = (int)Math.floor(this.timeLeft / 60);
+		int seconds = (this.timeLeft % 60);
+		return (minutes > 0 ? this.intTo2DigitFormat(minutes) + "min " : "") + this.intTo2DigitFormat(seconds) + "s";
 	}
 	
 	/**
