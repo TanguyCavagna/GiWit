@@ -9,7 +9,7 @@ enable-health-regen: false
 episode-markers:
   enable: false
   # Duration of the episodes in seconds.
-  delay: 900
+  delay: 45
 
 # Chat prefix, when enabled, messages starting with @ will display in team chat, when starting with ! they will be displayed in global chat.
 # But is a player is in a team and dosen't one of those prefixes, the message will be canceled

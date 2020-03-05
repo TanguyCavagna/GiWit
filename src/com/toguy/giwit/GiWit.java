@@ -2,6 +2,7 @@ package com.toguy.giwit;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -52,23 +53,13 @@ public class GiWit extends JavaPlugin implements Listener {
 		this.getConfig().options().copyDefaults();
 		this.saveDefaultConfig();
 		
-		// Setup des commandes
-		getCommand("uhc").setExecutor(new UHCAdministrationCommand());
-		getCommand("gui").setExecutor(new GUICommand());
-		getCommand("swap").setExecutor(new SwapCommand());
-		
-		// Setup de events
-		Bukkit.getServer().getPluginManager().registerEvents(new UHCEvent(), this);
-		Bukkit.getServer().getPluginManager().registerEvents(new ClickGuiEvent(), this);
-		Bukkit.getServer().getPluginManager().registerEvents(this, this);
-		
 		// Debug message
-		Bukkit.getServer().getLogger().info("Player-Player plugin is enable");
+		Bukkit.getServer().getLogger().info("awdawdawd-Player plugin is enable");
 		
 		// Setup des scoreboards
 		ScoreboardManager manager = Bukkit.getScoreboardManager();
-		
 		this.board = manager.getNewScoreboard();
+		
 		this.streamers = board.registerNewTeam("Streamer");
 		this.streamers.setColor(org.bukkit.ChatColor.WHITE);
 		
@@ -77,6 +68,16 @@ public class GiWit extends JavaPlugin implements Listener {
 		this.admins.setColor(org.bukkit.ChatColor.WHITE);
 		
 		TeamScoreboards.purgeScoreboards();
+		
+		// Setup des commandes
+		getCommand("uhc").setExecutor(new UHCAdministrationCommand(this.board));
+		getCommand("gui").setExecutor(new GUICommand());
+		getCommand("swap").setExecutor(new SwapCommand());
+		
+		// Setup de events
+		Bukkit.getServer().getPluginManager().registerEvents(new UHCEvent(), this);
+		Bukkit.getServer().getPluginManager().registerEvents(new ClickGuiEvent(), this);
+		Bukkit.getServer().getPluginManager().registerEvents(this, this);
 		
 		this.twitch = new Twitch();
 		
@@ -339,8 +340,9 @@ public class GiWit extends JavaPlugin implements Listener {
 		
 		if (player.isOp()) {
 			this.admins.addEntry(player.getName());
-			player.setScoreboard(this.board);
 			player.setGameMode(GameMode.CREATIVE);
 		}
+
+		player.setScoreboard(this.board);
 	}
 }

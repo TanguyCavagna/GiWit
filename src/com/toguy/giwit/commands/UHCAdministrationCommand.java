@@ -10,7 +10,13 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Score;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.Team;
 
+import com.toguy.giwit.Episode;
 import com.toguy.giwit.GiWit;
 
 import net.md_5.bungee.api.ChatColor;
@@ -24,15 +30,26 @@ public class UHCAdministrationCommand implements CommandExecutor {
 	private JavaPlugin plugin = GiWit.getPlugin(GiWit.class);
 	
 	// Variable de la configuration
+	private Scoreboard board;
 	private Boolean moving;
 	private int startSize;
 	private int endSize;
 	private int timeToShrink;
 	private int timeBeforeShrink;
 	private int timeToStartWhenReady;
+	private Episode episode;
+	private int episodeTimeUpdater = 0;
+	private Boolean uhcStarted = false;
 	
 	private World world;
 	public WorldBorder wb;
+	
+	/**
+	 * Constructeur uniquement pour récupérer le scoreboard
+	 */
+	public UHCAdministrationCommand(Scoreboard sb) {
+		this.board = sb;
+	}
 	
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -45,10 +62,17 @@ public class UHCAdministrationCommand implements CommandExecutor {
 			if (args[0].equalsIgnoreCase("remake")) {
 				if (sender instanceof Player) {
 					if (((Player)sender).isOp()) {
-						createWorld();
+						this.uhcStarted = false;
+						Bukkit.getScheduler().cancelTask(episodeTimeUpdater);
 						
-						for (Player p : Bukkit.getOnlinePlayers())
+						this.createWorld();
+						this.createScoreboard();
+						
+						
+						for (Player p : Bukkit.getOnlinePlayers()) {
 							p.teleport(world.getSpawnLocation());
+							p.setScoreboard(this.board);
+						}
 					}
 				}
 			}
@@ -82,13 +106,14 @@ public class UHCAdministrationCommand implements CommandExecutor {
 				
 				// S'éxécute après le compte a rebour de début de partie
 				Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, new Runnable() {
-
 					@Override
 					public void run() {
 						Bukkit.getScheduler().cancelTask(startCountdown);
 						
 						if (moving) {
 							if (world != null) {
+								uhcStarted = true;
+								
 								// Fait bouger la border après un durée donnée et pendant une durée donnée
 								Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 									@Override
@@ -101,7 +126,6 @@ public class UHCAdministrationCommand implements CommandExecutor {
 								sendClickableCommandToPlayer("Tu dois en premier lieu re générer le monde avec la commande : ", "/uhc remake", "", player);
 						}
 					}
-					
 				}, this.timeToStartWhenReady * 20);
 			}
 		}
@@ -227,5 +251,62 @@ public class UHCAdministrationCommand implements CommandExecutor {
 		this.timeToShrink = this.plugin.getConfig().getInt("border.time-to-shrink");
 		this.timeBeforeShrink = this.plugin.getConfig().getInt("border.time-before-shrink");
 		this.timeToStartWhenReady = this.plugin.getConfig().getInt("time-to-start-when-ready");
+	}
+
+	/**
+	 * Créer le scoreboard de la sidebar
+	 */
+	private void createScoreboard() {
+		// Recréer l'instance de l'episode pour le remttre a zero
+		this.episode = new Episode();
+		
+		// Supprimer les objectifs et teams présendentes
+		if (this.board.getObjective(DisplaySlot.SIDEBAR) != null)
+			this.board.getObjective(DisplaySlot.SIDEBAR).unregister();
+		
+		if (this.board.getTeam("episode") != null)
+			this.board.getTeam("episode").unregister();
+		
+		if (this.board.getTeam("timeLeft") != null)
+			this.board.getTeam("timeLeft").unregister();
+		
+		// Créer notre scoreboard de sidebar
+		Objective objective = this.board.registerNewObjective("GiWit", "dummy", ChatColor.AQUA + "GiWit");
+		objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+		
+		Team episodeNumber = this.board.registerNewTeam("episode");
+		episodeNumber.addEntry(ChatColor.GOLD + "Episode: ");
+		episodeNumber.setPrefix("");
+		episodeNumber.setSuffix("");
+		episodeNumber.setSuffix(episode.getEpisodeNbr() + "");
+		
+		Team episodeTimeLeft = this.board.registerNewTeam("timeLeft");
+		episodeTimeLeft.addEntry(ChatColor.GOLD + "Temps restant: " + ChatColor.WHITE);
+		episodeTimeLeft.setPrefix("");
+		episodeTimeLeft.setSuffix("");
+		episodeTimeLeft.setSuffix(episode.getTimeLeftHasString() + "");
+		
+		objective.getScore(ChatColor.AQUA + "---------------------").setScore(4);
+		objective.getScore("").setScore(3);
+		objective.getScore(ChatColor.GOLD + "Episode: ").setScore(2);
+		objective.getScore(ChatColor.GOLD + "Temps restant: " + ChatColor.WHITE).setScore(1);
+		objective.getScore(" ").setScore(0);
+
+		// Met a jour les informations de l'espisode
+		episodeTimeUpdater = Bukkit.getScheduler().scheduleSyncRepeatingTask(this.plugin, new Runnable() {
+			@Override
+			public void run() {
+				if (uhcStarted) {
+					episode.updateTimeLeft();
+					
+					episodeTimeLeft.setSuffix(episode.getTimeLeftHasString() + "");
+	
+					if (episode.getTimeLeft() <= 0) {
+						episode.nextEpisode();
+						episodeNumber.setSuffix(episode.getEpisodeNbr() + "");
+					}
+				}
+			}
+		}, 20, 20);
 	}
 }
