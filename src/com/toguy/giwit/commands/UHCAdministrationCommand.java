@@ -186,8 +186,20 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 		
 		this.generateSpawnPlatform();
 		this.createWorldBorder(0, 0, this.startSize);
+		this.pregenerateChunks();
 	}
 
+	/**
+	 * Pré génère les chunks
+	 */
+	private void pregenerateChunks() {
+		for (int i = 0; i < (int)(this.wb.getSize() / 16); i++) {
+			for (int j = 0; j < (int)(this.wb.getSize() / 16); j++) {
+				this.world.getChunkAt(i, j);
+			}
+		}
+	}
+	
 	/**
 	 * Génère la plateforme de spawn
 	 */
