@@ -4,6 +4,7 @@ import java.util.Random;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -16,6 +17,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -104,7 +106,7 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 			if (args[0].equalsIgnoreCase("shrink")) {
 				if (this.moving) {
 					if (wb != null)
-						wb.setSize(this.endSize, this.timeToShrink);
+						wb.setSize(this.endSize * 2, this.timeToShrink);
 					else
 						this.sendClickableCommandToPlayer("Tu dois en premier lieu commencer la partie avec la commande : ", "/uhc start", "", player);
 				}
@@ -149,7 +151,7 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 								Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 									@Override
 									public void run() {
-										wb.setSize(endSize, timeToShrink);
+										wb.setSize(endSize * 2, timeToShrink);
 									}
 								}, timeBeforeShrink * 20);
 							}
@@ -170,6 +172,53 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 		
 		return true;
 	}
+
+	/**
+	 * Gentleman rule
+	 * 
+	 * @param e
+	 */
+	@EventHandler
+	public void onAttack(EntityDamageByEntityEvent e) {
+		if (e.getEntity() instanceof Player && e.getDamager() instanceof Player) {
+			if (this.isPvpEnable) {
+				// Doc nothing
+			} else {
+				e.setCancelled(true);
+			}
+		}
+	}
+	
+	/**
+	 * Désactive les drops d'items si la game a pas commencer
+	 * 
+	 * @param e
+	 */
+	@EventHandler
+	public void onPlayerDropItem(PlayerDropItemEvent e) {
+		if (!this.uhcStarted) {
+			e.setCancelled(true);
+		}
+	}
+	
+	/**
+	 * Téléporte les joueurs lors de leur join
+	 * 
+	 * @param e
+	 */
+	@EventHandler
+	public void onPlayerJoin(PlayerJoinEvent e) {
+		Player player = (Player)e.getPlayer();
+		
+		player.teleport(this.world.getSpawnLocation());
+	}
+	
+	@EventHandler
+	public void onPlayerDeath(PlayerDeathEvent e) {
+		Player player = (Player)e.getEntity();
+		
+		player.setGameMode(GameMode.SPECTATOR);
+	}
 	
 	/**
 	 * Créer un nouveau monde à chaque lancement de serveur
@@ -185,12 +234,12 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 		
 		this.generateSpawnPlatform();
 		this.createWorldBorder(0, 0, this.startSize);
-		this.pregenerateChunks();
 	}
 
 	/**
 	 * Pré génère les chunks
 	 */
+	@Deprecated
 	private void pregenerateChunks() {
 		for (Player player : Bukkit.getOnlinePlayers())
 			player.kickPlayer("Monde en prcessus de génération.");
@@ -358,7 +407,7 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 		Team worldBorderInfo = this.board.registerNewTeam("worldBorder");
 		worldBorderInfo.addEntry(ChatColor.RED + "Bordures: " + ChatColor.WHITE);
 		worldBorderInfo.setPrefix("");
-		worldBorderInfo.setSuffix("+" + (int)wb.getSize() + "/-" + (int)wb.getSize());
+		worldBorderInfo.setSuffix("+" + (int)((int)wb.getSize() / 2) + "/-" + (int)((int)wb.getSize() / 2));
 		
 		objective.getScore(ChatColor.GRAY + "---------------------").setScore(7);
 		objective.getScore(ChatColor.RED + "Episode: " + ChatColor.WHITE).setScore(6);
@@ -418,45 +467,5 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 				p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 10 * 20, 100));
 			}
 		}
-	}
-
-	/**
-	 * Gentleman rule
-	 * 
-	 * @param e
-	 */
-	@EventHandler
-	public void onAttack(EntityDamageByEntityEvent e) {
-		if (e.getEntity() instanceof Player && e.getDamager() instanceof Player) {
-			if (this.isPvpEnable) {
-				// Doc nothing
-			} else {
-				e.setCancelled(true);
-			}
-		}
-	}
-	
-	/**
-	 * Désactive les drops d'items si la game a pas commencer
-	 * 
-	 * @param e
-	 */
-	@EventHandler
-	public void onPlayerDropItem(PlayerDropItemEvent e) {
-		if (!this.uhcStarted) {
-			e.setCancelled(true);
-		}
-	}
-	
-	/**
-	 * Téléporte les joueurs lors de leur join
-	 * 
-	 * @param e
-	 */
-	@EventHandler
-	public void onPlayerJoin(PlayerJoinEvent e) {
-		Player player = (Player)e.getPlayer();
-		
-		player.teleport(this.world.getSpawnLocation());
 	}
 }
