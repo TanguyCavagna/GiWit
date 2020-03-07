@@ -15,9 +15,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -67,8 +67,8 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 	/**
 	 * Constructeur uniquement pour récupérer le scoreboard
 	 */
-	public UHCAdministrationCommand(Scoreboard sb) {
-		this.board = sb;
+	public UHCAdministrationCommand() {
+		this.board = TeamScoreboards.getInstance().getScoreboard();
 	}
 	
 	@Override
@@ -89,6 +89,7 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 							this.createWorld(args[1]);
 						else
 							this.createWorld("");
+						
 						this.createScoreboard();
 						
 						for (Player p : Bukkit.getOnlinePlayers()) {
@@ -113,6 +114,12 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 			if (args[0].equalsIgnoreCase("start")) {
 
 				this.isPvpEnable = false;
+				
+				this.createScoreboard();
+				
+				for (Player p : Bukkit.getOnlinePlayers()) {
+					p.setScoreboard(this.board);
+				}
 				
 				// Compte a rebour avant début de partie
 				int startCountdown = Bukkit.getScheduler().scheduleSyncRepeatingTask(this.plugin, new Runnable() {
@@ -173,8 +180,9 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 			WorldCreator creator = new WorldCreator("UHC-" + UUID.randomUUID().toString().split("-")[0]);
 			creator.generateStructures(true);
 			world = creator.createWorld();
-		} else
+		} else {
 			world = Bukkit.getWorld("world");
+		}
 		
 		this.generateSpawnPlatform();
 		this.createWorldBorder(0, 0, this.startSize);
@@ -386,8 +394,8 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 		for (UHCTeam uhcTeam : TeamScoreboards.getInstance().getTeams().values()) {
 			Team team = uhcTeam.getTeam();
 			
-			int x = r.nextInt((int)(this.wb.getSize() * 2)) - (int)this.wb.getSize();
-			int z = r.nextInt((int)(this.wb.getSize() * 2)) - (int)this.wb.getSize();
+			int x = r.nextInt((int)this.wb.getSize()) - (int)(this.wb.getSize() / 2);
+			int z = r.nextInt((int)this.wb.getSize()) - (int)(this.wb.getSize() / 2);
 			Location randomSpawn = new Location(this.world, (double)(x), 150.0, (double)(z));
 			
 			for (String playerName : team.getEntries()) {
@@ -414,4 +422,27 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 		}
 	}
 	
+	/**
+	 * Désactive les drops d'items si la game a pas commencer
+	 * 
+	 * @param e
+	 */
+	@EventHandler
+	public void onPlayerDropItem(PlayerDropItemEvent e) {
+		if (!this.uhcStarted) {
+			e.setCancelled(true);
+		}
+	}
+	
+	/**
+	 * Téléporte les joueurs lors de leur join
+	 * 
+	 * @param e
+	 */
+	@EventHandler
+	public void onPlayerJoin(PlayerJoinEvent e) {
+		Player player = (Player)e.getPlayer();
+		
+		player.teleport(this.world.getSpawnLocation());
+	}
 }

@@ -2,6 +2,7 @@ package com.toguy.giwit;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -9,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.*;
 import org.json.simple.*;
@@ -40,8 +42,6 @@ import net.md_5.bungee.api.chat.TextComponent;
 public class GiWit extends JavaPlugin implements Listener {
 	
 	private Scoreboard board;
-	private Team streamers;
-	private Team admins;
 		
 	private Twitch twitch;
 	
@@ -59,20 +59,12 @@ public class GiWit extends JavaPlugin implements Listener {
 		Bukkit.getServer().getLogger().info("awdawdawd-Player plugin is enable");
 		
 		// Setup des scoreboards
-		ScoreboardManager manager = Bukkit.getScoreboardManager();
-		this.board = manager.getNewScoreboard();
-		
-		this.streamers = board.registerNewTeam("Streamer");
-		this.streamers.setColor(org.bukkit.ChatColor.WHITE);
-		
-		this.admins = board.registerNewTeam("Admin");
-		this.admins.setSuffix(ChatColor.GOLD + " [ADMIN]");
-		this.admins.setColor(org.bukkit.ChatColor.WHITE);
+		this.board = TeamScoreboards.getInstance().getScoreboard();
 		
 		TeamScoreboards.purgeScoreboards();
 		
 		// Setup des commandes
-		UHCAdministrationCommand uhcAdministrationCommand = new UHCAdministrationCommand(this.board);
+		UHCAdministrationCommand uhcAdministrationCommand = new UHCAdministrationCommand();
 		getCommand("uhc").setExecutor(uhcAdministrationCommand);
 		getCommand("gui").setExecutor(new GUICommand());
 		getCommand("swap").setExecutor(new SwapCommand());
@@ -131,7 +123,7 @@ public class GiWit extends JavaPlugin implements Listener {
 				if (args[0].equalsIgnoreCase("link")) {
 					if (args.length > 1 && !args[1].isEmpty()) {
 						// TODO : Décommenter les lignes ce dessous pour réactiver la permission
-						if (!p.isOp()) {
+						//if (!p.isOp()) {
 							try {
 								String response = this.twitch.getStreamInfosByUserLogin(args[1]);
 
@@ -141,49 +133,52 @@ public class GiWit extends JavaPlugin implements Listener {
 								
 								Gson g = new Gson();
 								Twitch.Stream stream = g.fromJson(data.get(0).toString(), Twitch.Stream.class);
-																
+								
 								if (stream.isLive()) {
-									this.streamers.setSuffix(ChatColor.RED + " ⏺ LIVE " + ChatColor.LIGHT_PURPLE + "(" + stream.getViewerCount().toString() + ")");
-									this.streamers.addEntry(p.getName());
+									String playerSuffix = p.getName() + ChatColor.RED + " [LIVE] " + ChatColor.LIGHT_PURPLE + "(" + stream.getViewerCount().toString() + ")" + ChatColor.WHITE;
+									p.setDisplayName(playerSuffix);
+									p.setPlayerListName(playerSuffix);
 									
-									p.setScoreboard(this.board);
+									Team playerTeam = TeamScoreboards.getInstance().getPlayerTeam(p);
+									if (playerTeam != null) {
+										p.setDisplayName(playerTeam.getColor() + p.getDisplayName());
+										p.setPlayerListName(playerTeam.getColor() + p.getPlayerListName());
+									}
+									
+									p.setScoreboard(TeamScoreboards.getInstance().getScoreboard());
 									
 									this.twitch.addPlayerInPlayerTwichName(p.getName(), stream.getUserName());
 									
-									TextComponent mainMsg = new TextComponent("Le lien avec ");
-									mainMsg.setColor(ChatColor.GREEN);
-									TextComponent link = new TextComponent("twitch.tv/" + args[1]);
-									link.setBold(true);
-									link.setUnderlined(true);
-									link.setColor(ChatColor.DARK_PURPLE);
-									link.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Click me !").create()));
-									link.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://twitch.tv/" + args[1]));
-									mainMsg.addExtra(link);
-									mainMsg.addExtra(" à bien été établie !");
-									
-									p.spigot().sendMessage(mainMsg);
+									p.spigot().sendMessage(this.createTwitchLinkMessage(args[1]));
 								} else {
 									p.sendMessage(ChatColor.RED + "[Error]" + ChatColor.WHITE + "Le live de " + args[1] + " n'est pas on.");
 								}
 							} catch (Exception e) {
 								p.sendMessage(ChatColor.DARK_RED + e.getStackTrace().toString());
 							}
-						} else {
-							p.sendMessage("Tu es admin donc pas d'autre grade pour toi.");
-						}
+						//} else {
+						//	p.sendMessage("Tu es admin donc pas d'autre grade pour toi.");
+						//}
 					}
 				}
 				
 				// Retire le lien entre le joueur et le stream
 				if (args[0].equalsIgnoreCase("unlink")) {
-					if (this.streamers.hasEntry(p.getName())) {
-						this.streamers.removeEntry(p.getName());
+					if (p.getDisplayName() != p.getName()) {
+						p.setDisplayName(p.getName());
+						p.setPlayerListName(p.getName());
+						
+						Team playerTeam = TeamScoreboards.getInstance().getPlayerTeam(p);
+						if (playerTeam != null) {
+							p.setDisplayName(playerTeam.getColor() + p.getName());
+							p.setPlayerListName(playerTeam.getColor() + p.getName());
+						}
 						
 						this.twitch.removePlayerInPlayerTwitchname(p.getName());
 						
 						if (p.isOp()) {
-							if (!this.admins.hasEntry(p.getName()))
-								this.admins.addEntry(p.getName());
+							if (!TeamScoreboards.getInstance().isPlayerInAdmins(p))
+								TeamScoreboards.getInstance().removePlayerFromAdmins(p);
 						}
 						
 						p.setScoreboard(this.board);
@@ -241,7 +236,7 @@ public class GiWit extends JavaPlugin implements Listener {
 		
 		return true;
 	}
-
+	
 	/**
 	 * Evènement appelé lorsqu'un joueur écrit dans le chat
 	 * 
@@ -260,10 +255,7 @@ public class GiWit extends JavaPlugin implements Listener {
 			Team t = uhcTeam.getTeam();
 			
 			if (t.hasEntry(player.getName())) {
-				if (this.streamers.getEntries().contains(player.getName()))
-					e.setFormat(uhcTeam.getColor() + this.twitch.getPlayerInPlayerTwichName(player.getName()) + ChatColor.GRAY + " (" + player.getName() + ")" + ChatColor.RED + " [LIVE]" + ChatColor.WHITE + " : " + message);
-				else
-					e.setFormat(uhcTeam.getColor() + player.getDisplayName() + ChatColor.WHITE + ": " + message);
+				e.setFormat(uhcTeam.getColor() + player.getDisplayName() + ChatColor.WHITE + ": " + message);
 				
 				if (chatPrefixEnable)
 					e = updateMessageDestinationFromPrefixes(e, message, globalMessagePrefix, teamMessagePrefix, t);
@@ -276,6 +268,38 @@ public class GiWit extends JavaPlugin implements Listener {
 		e.setFormat(ChatColor.WHITE + player.getDisplayName() + ": " + message);
 	}
 	
+	/**
+	 * Evènement appelé lors du join d'un joueur 
+	 * 
+	 * @param e Evènement pour le join d'un joueur 
+	 */
+	@EventHandler
+	public void onPlayerJoin(PlayerJoinEvent e) {
+		Player player = e.getPlayer();
+		
+		this.setupPlayerInfos(player);
+	}
+	
+	/**
+	 * Créer le message lors de la validation du lien avec le compte twitch
+	 * 
+	 * @return
+	 */
+	public TextComponent createTwitchLinkMessage(String twitchUsername) {
+		TextComponent mainMsg = new TextComponent("Le lien avec ");
+		mainMsg.setColor(ChatColor.GREEN);
+		TextComponent link = new TextComponent("twitch.tv/" + twitchUsername);
+		link.setBold(true);
+		link.setUnderlined(true);
+		link.setColor(ChatColor.DARK_PURPLE);
+		link.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Click me !").create()));
+		link.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://twitch.tv/" + twitchUsername));
+		mainMsg.addExtra(link);
+		mainMsg.addExtra(" à bien été établie !");
+		
+		return mainMsg;
+	}
+
 	/**
 	 * Modifie la cible du message en fonction du préfix du message
 	 * @param e Evenement de chat
@@ -290,50 +314,43 @@ public class GiWit extends JavaPlugin implements Listener {
 		// ETANT DONNER QUE LE JOUEUR EST DANS UNE EQUIPE, IL FAUT QU'IL COMMUNIQUE DE FACON PRECISE
 		//========================================
 		// Envoie le message a tout le monde
+		e.setCancelled(true);
+		String format = e.getFormat();
+
+		// Ne fait rien de special
 		if (message.startsWith(globalMessagePrefix)) {
-			e.setCancelled(true);
-			
-			String format = e.getFormat();
-			// Ne fait rien de special
-			int charPos = format.indexOf(globalMessagePrefix);
-		    if (charPos > 0)
-		    	format = new StringBuilder(format).deleteCharAt(charPos).toString();
+			format = this.removeCharAtPos(format, format.indexOf(globalMessagePrefix));
 		    
-		    Bukkit.broadcastMessage(format);
+			e.setFormat(format);
+			e.setCancelled(false);
 		} 
 		// Envoie le message uniquement à ceux de la meme équipe
 		else if (message.startsWith(teamMessagePrefix)) {
-			e.setCancelled(true);
-						
-			String format = e.getFormat();
-			
-			int charPos = format.indexOf(teamMessagePrefix);
-		    if (charPos > 0)
-		    	format = new StringBuilder(format).deleteCharAt(charPos).toString();
-			
+			format = this.removeCharAtPos(format, format.indexOf(teamMessagePrefix));
+		    
 			for (String playerName : t.getEntries()) {
 				Player teamMate = Bukkit.getServer().getPlayer(playerName);
 				teamMate.sendMessage(format);
 			}
 		} 
-		// Annule le message si rien n'est indiquer
-		else
-			e.setCancelled(true);
 		
 		return e;
 	}
 	
 	/**
-	 * Evènement appelé lors du join d'un joueur 
+	 * Supprime un caractère a une position donnée
 	 * 
-	 * @param e Evènement pour le join d'un joueur 
+	 * @param foo Chaine dans laquelle supprimer le caractère
+	 * @param charPos Index du caractère
+	 * @return
 	 */
-	@EventHandler
-	public void onPlayerJoin(PlayerJoinEvent e) {
-		Player player = e.getPlayer();
-		this.setupPlayerInfos(player);
+	private String removeCharAtPos(String foo, int charPos) {
+		if (charPos > 0)
+	    	return new StringBuilder(foo).deleteCharAt(charPos).toString();
+		else
+			return foo;
 	}
-	
+
 	/**
 	 * Attribut les scoreboards a un joueur
 	 * 
@@ -341,12 +358,15 @@ public class GiWit extends JavaPlugin implements Listener {
 	 */
 	private void setupPlayerInfos(Player player) {
 		player.setGameMode(GameMode.ADVENTURE);
+		player.setDisplayName(player.getName());
+		player.setPlayerListName(player.getName());
 		
 		if (player.isOp()) {
-			this.admins.addEntry(player.getName());
+			TeamScoreboards.getInstance().addPlayerToAdminTeam(player);
 			player.setGameMode(GameMode.CREATIVE);
 		}
 
-		player.setScoreboard(this.board);
+		player.setScoreboard(TeamScoreboards.getInstance().getScoreboard());
+		player.getInventory().addItem(new ItemStack(Material.COMPASS));
 	}
 }

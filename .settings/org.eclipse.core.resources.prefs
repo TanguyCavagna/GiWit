@@ -1,4 +1,5 @@
 eclipse.preferences.version=1
 encoding//src/com/toguy/giwit/GiWit.java=UTF-8
 encoding//src/com/toguy/giwit/commands/UHCAdministrationCommand.java=UTF-8
+encoding//src/com/toguy/giwit/scoreboards/uhc/TeamScoreboards.java=UTF-8
 encoding//src/com/toguy/giwit/scoreboards/uhc/UHCTeam.java=UTF-8
