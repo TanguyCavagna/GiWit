@@ -1,12 +1,14 @@
 package com.toguy.giwit.commands;
 
 import java.util.Random;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.WorldBorder;
+import org.bukkit.WorldCreator;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -83,9 +85,11 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 						this.uhcStarted = false;
 						Bukkit.getScheduler().cancelTask(episodeTimeUpdater);
 						
-						this.createWorld();
+						if (args.length > 1 && !args[1].isEmpty())
+							this.createWorld(args[1]);
+						else
+							this.createWorld("");
 						this.createScoreboard();
-						
 						
 						for (Player p : Bukkit.getOnlinePlayers()) {
 							p.teleport(world.getSpawnLocation());
@@ -108,6 +112,8 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 			// Commence la partie
 			if (args[0].equalsIgnoreCase("start")) {
 
+				this.isPvpEnable = false;
+				
 				// Compte a rebour avant début de partie
 				int startCountdown = Bukkit.getScheduler().scheduleSyncRepeatingTask(this.plugin, new Runnable() {
 
@@ -138,7 +144,7 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 									public void run() {
 										wb.setSize(endSize, timeToShrink);
 									}
-								}, timeBeforeShrink);
+								}, timeBeforeShrink * 20);
 							}
 							else
 								sendClickableCommandToPlayer("Tu dois en premier lieu re générer le monde avec la commande : ", "/uhc remake", "", player);
@@ -161,12 +167,14 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 	/**
 	 * Créer un nouveau monde à chaque lancement de serveur
 	 */
-	private void createWorld() {
-		//WorldCreator creator = new WorldCreator("UHC-" + UUID.randomUUID().toString().split("-")[0]);
-		//creator.generateStructures(true);
-		//world = creator.createWorld();
+	private void createWorld(String remakeWorld) {
 		
-		world = Bukkit.getWorld("world");
+		if (remakeWorld.equalsIgnoreCase("world")) {
+			WorldCreator creator = new WorldCreator("UHC-" + UUID.randomUUID().toString().split("-")[0]);
+			creator.generateStructures(true);
+			world = creator.createWorld();
+		} else
+			world = Bukkit.getWorld("world");
 		
 		this.generateSpawnPlatform();
 		this.createWorldBorder(0, 0, this.startSize);

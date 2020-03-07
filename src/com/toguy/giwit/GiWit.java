@@ -49,8 +49,11 @@ public class GiWit extends JavaPlugin implements Listener {
 	 * Méthode appelée lors de l'activation du plugin
 	 */
 	public void onEnable() {
-		this.getConfig().options().copyDefaults();
-		this.saveDefaultConfig();
+		try {
+			this.saveDefaultConfig();
+		} catch (Exception e) {
+			this.getConfig().options().copyDefaults();
+		}
 		
 		// Debug message
 		Bukkit.getServer().getLogger().info("awdawdawd-Player plugin is enable");
@@ -126,7 +129,7 @@ public class GiWit extends JavaPlugin implements Listener {
 				}
 				
 				if (args[0].equalsIgnoreCase("link")) {
-					if (!args[1].isEmpty()) {
+					if (args.length > 1 && !args[1].isEmpty()) {
 						// TODO : Décommenter les lignes ce dessous pour réactiver la permission
 						if (!p.isOp()) {
 							try {
