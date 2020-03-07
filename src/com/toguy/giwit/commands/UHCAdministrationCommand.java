@@ -174,8 +174,7 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 	/**
 	 * Créer un nouveau monde à chaque lancement de serveur
 	 */
-	private void createWorld(String remakeWorld) {
-		
+	private void createWorld(String remakeWorld) {	
 		if (remakeWorld.equalsIgnoreCase("world")) {
 			WorldCreator creator = new WorldCreator("UHC-" + UUID.randomUUID().toString().split("-")[0]);
 			creator.generateStructures(true);
@@ -193,6 +192,9 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 	 * Pré génère les chunks
 	 */
 	private void pregenerateChunks() {
+		for (Player player : Bukkit.getOnlinePlayers())
+			player.kickPlayer("Monde en prcessus de génération.");
+		
 		for (int i = 0; i < (int)(this.wb.getSize() / 16); i++) {
 			for (int j = 0; j < (int)(this.wb.getSize() / 16); j++) {
 				this.world.getChunkAt(i, j);
@@ -269,7 +271,7 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 	private void createWorldBorder(int x, int z, int distanceFromCenter) {
 		wb = world.getWorldBorder();
 		wb.setCenter(x, z);
-		wb.setSize(distanceFromCenter);
+		wb.setSize(distanceFromCenter * 2);
 	}
 
 	/**
@@ -307,7 +309,7 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 		this.timeBeforePvp = this.plugin.getConfig().getInt("gentlemen-rule");
 		this.isNaturalRegenerationEnable = this.plugin.getConfig().getBoolean("enable-health-regen");
 	}
-
+	
 	/**
 	 * Créer le scoreboard de la sidebar
 	 */
