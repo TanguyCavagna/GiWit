@@ -2,7 +2,6 @@ package com.toguy.giwit;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
-import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -70,11 +69,13 @@ public class GiWit extends JavaPlugin implements Listener {
 		TeamScoreboards.purgeScoreboards();
 		
 		// Setup des commandes
-		getCommand("uhc").setExecutor(new UHCAdministrationCommand(this.board));
+		UHCAdministrationCommand uhcAdministrationCommand = new UHCAdministrationCommand(this.board);
+		getCommand("uhc").setExecutor(uhcAdministrationCommand);
 		getCommand("gui").setExecutor(new GUICommand());
 		getCommand("swap").setExecutor(new SwapCommand());
 		
 		// Setup de events
+		Bukkit.getServer().getPluginManager().registerEvents(uhcAdministrationCommand, this);
 		Bukkit.getServer().getPluginManager().registerEvents(new UHCEvent(), this);
 		Bukkit.getServer().getPluginManager().registerEvents(new ClickGuiEvent(), this);
 		Bukkit.getServer().getPluginManager().registerEvents(this, this);

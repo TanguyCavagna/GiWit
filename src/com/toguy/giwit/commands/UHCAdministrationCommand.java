@@ -1,5 +1,7 @@
 package com.toguy.giwit.commands;
 
+import java.util.Random;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -9,15 +11,23 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByBlockEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
-import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
 import com.toguy.giwit.Episode;
 import com.toguy.giwit.GiWit;
+import com.toguy.giwit.scoreboards.uhc.TeamScoreboards;
+import com.toguy.giwit.scoreboards.uhc.UHCTeam;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -25,7 +35,7 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 
-public class UHCAdministrationCommand implements CommandExecutor {
+public class UHCAdministrationCommand implements CommandExecutor, Listener {
 	
 	private JavaPlugin plugin = GiWit.getPlugin(GiWit.class);
 	
@@ -43,6 +53,9 @@ public class UHCAdministrationCommand implements CommandExecutor {
 	private int episodeTimeUpdater = 0;
 	
 	private int timeBeforePvp;
+	private Boolean isPvpEnable = false;
+	
+	private Boolean isNaturalRegenerationEnable;
 	
 	private Boolean uhcStarted = false;
 	
@@ -130,6 +143,13 @@ public class UHCAdministrationCommand implements CommandExecutor {
 							else
 								sendClickableCommandToPlayer("Tu dois en premier lieu re générer le monde avec la commande : ", "/uhc remake", "", player);
 						}
+						
+						teleportAllPlayers();
+						
+						if (!isNaturalRegenerationEnable)
+							Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "gamerule naturalRegeneration false");
+						else
+							Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "gamerule naturalRegeneration true");
 					}
 				}, this.timeToStartWhenReady * 20);
 			}
@@ -257,6 +277,7 @@ public class UHCAdministrationCommand implements CommandExecutor {
 		this.timeBeforeShrink = this.plugin.getConfig().getInt("border.time-before-shrink");
 		this.timeToStartWhenReady = this.plugin.getConfig().getInt("time-to-start-when-ready");
 		this.timeBeforePvp = this.plugin.getConfig().getInt("gentlemen-rule");
+		this.isNaturalRegenerationEnable = this.plugin.getConfig().getBoolean("enable-health-regen");
 	}
 
 	/**
@@ -299,7 +320,7 @@ public class UHCAdministrationCommand implements CommandExecutor {
 		Team pvp = this.board.registerNewTeam("pvp");
 		pvp.addEntry(ChatColor.RED + "PVP: ");
 		pvp.setPrefix("");
-		if (this.timeBeforePvp == -1)
+		if (timeBeforePvp == -1)
 			pvp.setSuffix(ChatColor.GREEN + "✔");
 		else
 			pvp.setSuffix(ChatColor.DARK_RED + "✖");
@@ -337,6 +358,7 @@ public class UHCAdministrationCommand implements CommandExecutor {
 					if (timeBeforePvp != -1) {
 						if (timeBeforePvp <= 0) {
 							pvp.setSuffix(ChatColor.GREEN + "✔");
+							isPvpEnable = true;
 						} else {
 							pvp.setSuffix(ChatColor.DARK_RED + "✖");
 							timeBeforePvp--;
@@ -346,4 +368,42 @@ public class UHCAdministrationCommand implements CommandExecutor {
 			}
 		}, 20, 20);
 	}
+	
+	/**
+	 * Téléporte tout les joueurs dans la map
+	 */
+	private void teleportAllPlayers() {
+		Random r = new Random();
+		
+		for (UHCTeam uhcTeam : TeamScoreboards.getInstance().getTeams().values()) {
+			Team team = uhcTeam.getTeam();
+			
+			int x = r.nextInt((int)(this.wb.getSize() * 2)) - (int)this.wb.getSize();
+			int z = r.nextInt((int)(this.wb.getSize() * 2)) - (int)this.wb.getSize();
+			Location randomSpawn = new Location(this.world, (double)(x), 150.0, (double)(z));
+			
+			for (String playerName : team.getEntries()) {
+				Player p = Bukkit.getPlayer(playerName);
+				p.teleport(randomSpawn);
+				p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 10 * 20, 100));
+			}
+		}
+	}
+
+	/**
+	 * Gentleman rule
+	 * 
+	 * @param e
+	 */
+	@EventHandler
+	public void onAttack(EntityDamageByEntityEvent e) {
+		if (e.getEntity() instanceof Player && e.getDamager() instanceof Player) {
+			if (this.isPvpEnable) {
+				// Doc nothing
+			} else {
+				e.setCancelled(true);
+			}
+		}
+	}
+	
 }
