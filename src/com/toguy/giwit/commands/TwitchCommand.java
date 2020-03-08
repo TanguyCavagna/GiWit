@@ -28,15 +28,19 @@ public class TwitchCommand implements CommandExecutor {
 		if (sender instanceof Player) {
 			Player p = (Player)sender;
 			
-			if (args.length == 0) {
-				p.sendMessage(ChatColor.BLUE + "Si tu veux te lier a une chaine, fait /twitch link <chaine>. Si tu veux d� li�, fait /twitch unlink");
+			if (args.length <= 0) {
+				p.sendMessage("");
+				p.sendMessage(this.alternateColorForString(ChatColor.GRAY, ChatColor.WHITE, "☰☰☰☰☰☰☰☰") + ChatColor.AQUA + " /twitch " + this.alternateColorForString(ChatColor.GRAY, ChatColor.WHITE, "☰☰☰☰☰☰☰☰"));
+				p.sendMessage(ChatColor.DARK_GRAY + "> " + ChatColor.AQUA + "link <user_name>: " + ChatColor.WHITE + "Lie ton joueur avec un compte twitch");
+				p.sendMessage(ChatColor.DARK_GRAY + "> " + ChatColor.AQUA + "unlink: " + ChatColor.WHITE + "Délie ton joueur du compte twitch");
+				
 				return true;
 			}
 			
 			// Lie le joueur avec le stream
 			if (args[0].equalsIgnoreCase("link")) {
 				if (args.length > 1 && !args[1].isEmpty()) {
-					// TODO : D�commenter les lignes ce dessous pour r�activer la permission
+					// TODO : Décommenter les lignes ce dessous pour réactiver la permission
 					//if (!p.isOp()) {
 						try {
 							Twitch.Stream stream = this.twitch.getStreamInfosByUserLogin(args[1]);
@@ -93,7 +97,7 @@ public class TwitchCommand implements CommandExecutor {
 					
 					p.setScoreboard(TeamScoreboards.getInstance().getScoreboard());
 					
-					p.sendMessage(ChatColor.GREEN + "Le lien � bien �t� supprim� !");
+					p.sendMessage(ChatColor.GREEN + "Le lien à bien été supprimé !");
 				}
 			}
 		}
@@ -104,7 +108,7 @@ public class TwitchCommand implements CommandExecutor {
 	// Private
 	//=============================
 	/**
-	 * Cr�er le message lors de la validation du lien avec le compte twitch
+	 * Créer le message lors de la validation du lien avec le compte twitch
 	 * 
 	 * @return
 	 */
@@ -118,9 +122,27 @@ public class TwitchCommand implements CommandExecutor {
 		link.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Click me !").create()));
 		link.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://twitch.tv/" + twitchUsername));
 		mainMsg.addExtra(link);
-		mainMsg.addExtra(" � bien �t� �tablie !");
+		mainMsg.addExtra(" à bien été établie !");
 		
 		return mainMsg;
+	}
+	
+	/**
+	 * Retourne une chaine de caractère avec des couleurs en altérnance
+	 * @return
+	 */
+	private String alternateColorForString(ChatColor color1, ChatColor color2, String foo) {
+		String result = "";
+		
+		for (int i = 0; i < foo.length(); i++) {
+			if (i % 2 == 0) {
+				result += color1 + String.valueOf(foo.charAt(i));
+			} else {
+				result += color2 + String.valueOf(foo.charAt(i));
+			}
+		}
+		
+		return result;
 	}
 	
 }

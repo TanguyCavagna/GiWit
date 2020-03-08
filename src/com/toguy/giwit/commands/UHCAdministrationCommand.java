@@ -84,6 +84,17 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 		if (sender instanceof Player) {
 			Player player = (Player)sender;
 			
+			if (args.length <= 0) {
+				player.sendMessage("");
+				player.sendMessage(this.alternateColorForString(ChatColor.GRAY, ChatColor.WHITE, "☰☰☰☰☰☰☰☰") + ChatColor.AQUA + " /uhc" + ChatColor.RED + " [OP] " + this.alternateColorForString(ChatColor.GRAY, ChatColor.WHITE, "☰☰☰☰☰☰☰☰"));
+				player.sendMessage(ChatColor.DARK_GRAY + "> " + ChatColor.AQUA + "remake: " + ChatColor.WHITE + "Relance un uhc sur la même map");
+				player.sendMessage(ChatColor.DARK_GRAY + "> " + ChatColor.AQUA + "remake world: " + ChatColor.WHITE + "Relance un uhc sur un nouveau monde");
+				player.sendMessage(ChatColor.DARK_GRAY + "> " + ChatColor.AQUA + "start: " + ChatColor.WHITE + "Commence l'uhc");
+				player.sendMessage(ChatColor.DARK_GRAY + "> " + ChatColor.AQUA + "shrink: " + ChatColor.WHITE + "Commence le retrecissement des bordures");
+				
+				return true;
+			}
+			
 			// Re créer un monde
 			if (args[0].equalsIgnoreCase("remake")) {
 				if (sender instanceof Player) {
@@ -474,4 +485,23 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 			}
 		}
 	}
+
+	/**
+	 * Retourne une chaine de caractère avec des couleurs en altérnance
+	 * @return
+	 */
+	private String alternateColorForString(ChatColor color1, ChatColor color2, String foo) {
+		String result = "";
+		
+		for (int i = 0; i < foo.length(); i++) {
+			if (i % 2 == 0) {
+				result += color1 + String.valueOf(foo.charAt(i));
+			} else {
+				result += color2 + String.valueOf(foo.charAt(i));
+			}
+		}
+		
+		return result;
+	}
+
 }

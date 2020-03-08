@@ -12,6 +12,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import net.md_5.bungee.api.ChatColor;
+
 public class SwapCommand implements CommandExecutor {
 	
 	// Champs
@@ -25,10 +27,21 @@ public class SwapCommand implements CommandExecutor {
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		
 		if (sender instanceof Player) {
+			if (args.length <= 0) {
+				Player player = (Player)sender;
+				player.sendMessage("");
+				player.sendMessage(this.alternateColorForString(ChatColor.GRAY, ChatColor.WHITE, "☰☰☰☰☰☰☰☰") + ChatColor.AQUA + " /swap" + ChatColor.RED + " [OP] " + this.alternateColorForString(ChatColor.GRAY, ChatColor.WHITE, "☰☰☰☰☰☰☰☰"));
+				player.sendMessage(ChatColor.DARK_GRAY + "> " + ChatColor.AQUA + "players: " + ChatColor.WHITE + "Echange la position entre les joueurs");
+				player.sendMessage(ChatColor.DARK_GRAY + "> " + ChatColor.AQUA + "inventory: " + ChatColor.WHITE + "Echange l'inventaire entre joueurs");
+				player.sendMessage(ChatColor.DARK_GRAY + "> " + ChatColor.AQUA + "set <player_per_team>: " + ChatColor.WHITE + "Met a jour le nombre de joueur a swap par équipe");
+				
+				return true;
+			}
+			
 			// Swap les joueurs entre eux
 			if (args[0].equalsIgnoreCase("players")) {
 				if (playerPerTeam == 0) {
-					sender.sendMessage("Fait la commande /swap set <nombreDeJoueurParTeam> avant de swap les joueurs !!");
+					sender.sendMessage(ChatColor.RED + "> " + ChatColor.GOLD + "Fait la commande /swap set <player_per_team> avant de swap les joueurs !!");
 					return true;
 				}
 				
@@ -58,7 +71,7 @@ public class SwapCommand implements CommandExecutor {
 			// Swap les inventaires entre joeurs
 			if (args[0].equalsIgnoreCase("inventory")) {
 				if (playerPerTeam == 0) {
-					sender.sendMessage("Fait la commande /swap set <nombreDeJoueurParTeam> avant de swap les joueurs !!");
+					sender.sendMessage(ChatColor.RED + "> " + ChatColor.GOLD + "Fait la commande /swap set <player_per_team> avant de swap les joueurs !!");
 					return true;
 				}
 				
@@ -105,13 +118,32 @@ public class SwapCommand implements CommandExecutor {
 			// Set le nombre de joueur par team pour savoir combien de joueurs il y a a swap
 			if (args[0].equalsIgnoreCase("set")) {
 				try {
-					playerPerTeam = Integer.parseInt(args[1]);
+					playerPerTeam = Integer.parseInt(args[1]) > 0 ? Integer.parseInt(args[1]) : 1;
 				} catch (Exception e) {
-					Bukkit.broadcastMessage("Le numero entr�e est faux");
+					Bukkit.broadcastMessage("Le numero entrée n'est pas valide");
 				}
 			}
 		}
 		
 		return true;
 	}
+	
+	/**
+	 * Retourne une chaine de caractère avec des couleurs en altérnance
+	 * @return
+	 */
+	private String alternateColorForString(ChatColor color1, ChatColor color2, String foo) {
+		String result = "";
+		
+		for (int i = 0; i < foo.length(); i++) {
+			if (i % 2 == 0) {
+				result += color1 + String.valueOf(foo.charAt(i));
+			} else {
+				result += color2 + String.valueOf(foo.charAt(i));
+			}
+		}
+		
+		return result;
+	}
+
 }

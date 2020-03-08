@@ -135,6 +135,23 @@ public class GiWit extends JavaPlugin implements Listener {
 			}
 		}
 		
+		// Affiche l'aide des commandes
+		if (cmd.getName().equalsIgnoreCase("help")) {
+			if (sender instanceof Player) {
+				Player p = (Player)sender;
+				
+				if (p.isOp()) {
+					p.sendMessage("");
+					p.sendMessage(ChatColor.GOLD + "----------" + ChatColor.WHITE + " Aide " + ChatColor.GOLD + "----------");
+					p.performCommand("uhc");
+					p.performCommand("twitch");
+					p.performCommand("swap");
+				} else {
+					// Do nothing
+				}
+			}
+		}
+		
 		return true;
 	}
 	

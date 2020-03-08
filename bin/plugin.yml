@@ -21,3 +21,6 @@ commands:
   uhc:
     usage: /<command>
     description: Gere les parametres du monde
+  help:
+    usage: /<command>
+    description: Affiche l'aide pour les commandes
