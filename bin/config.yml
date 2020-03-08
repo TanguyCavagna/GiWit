@@ -6,7 +6,7 @@ time-to-start-when-ready: 10
 enable-health-regen: false
 
 # This is the time to wait before activate the pvp in seconds. If set to -1, the pvp will be directly activated
-gentlemen-rule: 20
+gentlemen-rule: 600
 
 # Enable to have a message and sound every x minutes. (This can be used for youtubers to know when to end their episodes.)
 episode-markers:
@@ -19,26 +19,26 @@ episode-markers:
 chat-prefix:
   enable: true
   team-prefix: '@'
-  global-prefix: '!'
+  global-prefix: ''
 
 border:
   #Set it to true to make the border reduce slowly
   moving: true
   
   #Sarting size of the border (400 means +400x, -400x. +400z, -400z)
-  start-size: 200
+  start-size: 500
 
   #End size of the border (400 means +400x, -400x. +400z, -400z)
   end-size: 100
 
   #If moving is set to true, the time in seconds for the border to shrink to end-size
-  time-to-shrink: 2
+  time-to-shrink: 1600
 
   #If moving is set to true, the time in seconds for the border before it start moving
-  time-before-shrink: 60
+  time-before-shrink: 1600
 
 #Be sure to have the correct amount of team in the team list bellow
-team-count: 4
+team-count: 8
 
 #The total of team must be the same as the team-count
 teams:
@@ -46,7 +46,7 @@ teams:
     name: "Rouge"
     color: "RED"
     material: "RED_WOOL"
-    maximum-members: 1
+    maximum-members: 2
   team-2: 
     name: "Bleu"
     color: "BLUE"
@@ -61,4 +61,24 @@ teams:
     name: "Violet"
     color: "DARK_PURPLE"
     material: "PURPLE_WOOL"
+    maximum-members: 2
+  team-5: 
+    name: "Orange"
+    color: "GOLD"
+    material: "ORANGE_WOOL"
+    maximum-members: 2
+  team-6: 
+    name: "Bleu claire"
+    color: "AQUA"
+    material: "LIGHT_BLUE_WOOL"
+    maximum-members: 2
+  team-7: 
+    name: "Rose"
+    color: "LIGHT_PURPLE"
+    material: "PINK_WOOL"
+    maximum-members: 2
+  team-8: 
+    name: "Gris"
+    color: "GRAY"
+    material: "LIGHT_GRAY_WOOL"
     maximum-members: 2
