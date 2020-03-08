@@ -20,6 +20,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -38,6 +39,7 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
+import sun.security.action.GetLongAction;
 
 public class UHCAdministrationCommand implements CommandExecutor, Listener {
 	
@@ -114,6 +116,11 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 						for (Player p : Bukkit.getOnlinePlayers()) {
 							p.teleport(world.getSpawnLocation());
 							p.setScoreboard(this.board);
+							
+							if (!player.isOp())
+								player.setGameMode(GameMode.ADVENTURE);
+							else
+								player.setGameMode(GameMode.CREATIVE);
 						}
 					}
 				}
@@ -237,12 +244,22 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 	 * @param e
 	 */
 	@EventHandler
-	public void onPlayerDeath(PlayerDeathEvent e) {
-		Player player = (Player)e.getEntity();
+	public void onPlayerDeath(PlayerRespawnEvent e) {
+		Player player = (Player)e.getPlayer();
+
+		e.setRespawnLocation(player.getWorld().getSpawnLocation());
 		
-		player.setGameMode(GameMode.SPECTATOR);
+		Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, new Runnable() {
+
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				player.setGameMode(GameMode.SPECTATOR);
+			}
+			
+		}, 2);
 	}
-	
+
 	// Private
 	//=============================
 	/**
