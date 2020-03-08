@@ -18,8 +18,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.entity.PlayerLeashEntityEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
@@ -39,7 +41,6 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
-import sun.security.action.GetLongAction;
 
 public class UHCAdministrationCommand implements CommandExecutor, Listener {
 	
@@ -469,16 +470,16 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 			this.board.getTeam("pvp").unregister();
 		
 		// Créer notre scoreboard de sidebar
-		Objective objective = this.board.registerNewObjective("GiWit", "dummy", ChatColor.RED + "GiWit");
+		Objective objective = this.board.registerNewObjective("GiWit", "dummy", ChatColor.WHITE + "" + ChatColor.BOLD + "GiWit");
 		objective.setDisplaySlot(DisplaySlot.SIDEBAR);
 		
 		Team episodeNumber = this.board.registerNewTeam("episode");
-		episodeNumber.addEntry(ChatColor.RED + "Episode: " + ChatColor.WHITE);
+		episodeNumber.addEntry(ChatColor.AQUA + "Episode ");
 		episodeNumber.setPrefix("");
 		episodeNumber.setSuffix(episode.getEpisodeNbr() + "");
 		
 		Team episodeTimeLeft = this.board.registerNewTeam("timeLeft");
-		episodeTimeLeft.addEntry(ChatColor.RED + "Temps restant: " + ChatColor.WHITE);
+		episodeTimeLeft.addEntry(ChatColor.GOLD + "Temps restant: " + ChatColor.YELLOW);
 		episodeTimeLeft.setPrefix("");
 		episodeTimeLeft.setSuffix(episode.getTimeLeftHasString() + "");
 		
@@ -491,18 +492,18 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 			pvp.setSuffix(ChatColor.DARK_RED + "✖");
 		
 		Team worldBorderInfo = this.board.registerNewTeam("worldBorder");
-		worldBorderInfo.addEntry(ChatColor.RED + "Bordures: " + ChatColor.WHITE);
+		worldBorderInfo.addEntry(ChatColor.DARK_GREEN + "Bordures: " + ChatColor.GREEN);
 		worldBorderInfo.setPrefix("");
 		worldBorderInfo.setSuffix("+" + (int)((int)wb.getSize() / 2) + "/-" + (int)((int)wb.getSize() / 2));
 		
-		objective.getScore(ChatColor.GRAY + "---------------------").setScore(7);
-		objective.getScore(ChatColor.RED + "Episode: " + ChatColor.WHITE).setScore(6);
-		objective.getScore(ChatColor.RED + "Temps restant: " + ChatColor.WHITE).setScore(5);
-		objective.getScore("").setScore(4);
-		objective.getScore(ChatColor.RED + "Bordures: " + ChatColor.WHITE).setScore(3);
-		objective.getScore(" ").setScore(2);
+		objective.getScore("").setScore(7);
+		objective.getScore(ChatColor.AQUA + "Episode ").setScore(6);
+		objective.getScore(ChatColor.GOLD + "Temps restant: " + ChatColor.YELLOW).setScore(5);
+		objective.getScore(" ").setScore(4);
+		objective.getScore(ChatColor.DARK_GREEN + "Bordures: " + ChatColor.GREEN).setScore(3);
+		objective.getScore("  ").setScore(2);
 		objective.getScore(ChatColor.RED + "PVP: ").setScore(1);
-		objective.getScore(ChatColor.GRAY + "---------------------" + ChatColor.WHITE).setScore(0);
+		objective.getScore("   ").setScore(0);
 
 		// Met a jour les informations de l'espisode
 		episodeTimeUpdater = Bukkit.getScheduler().scheduleSyncRepeatingTask(this.plugin, new Runnable() {

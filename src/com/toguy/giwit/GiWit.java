@@ -10,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.*;
@@ -154,38 +155,7 @@ public class GiWit extends JavaPlugin implements Listener {
 		
 		return true;
 	}
-	
-	/**
-	 * Evènement appelé lorsqu'un joueur écrit dans le chat
-	 * 
-	 * @param e Evènement de chat
-	 */
-	@EventHandler
-	public void onPlayerSay(AsyncPlayerChatEvent e) {
-		Player player = e.getPlayer();
-		String message = e.getMessage();
-		Boolean chatPrefixEnable = this.getConfig().getBoolean("chat-prefix.enable");
-		String teamMessagePrefix = this.getConfig().getString("chat-prefix.team-prefix");
-		String globalMessagePrefix = this.getConfig().getString("chat-prefix.global-prefix");
-		
-		// Parcoure toutes les équipes de l'uhc pour mettre la couleur correspondante dans le chat
-		for (UHCTeam uhcTeam : TeamScoreboards.getInstance().getTeams().values()) {
-			Team t = uhcTeam.getTeam();
-			
-			if (t.hasEntry(player.getName())) {
-				e.setFormat(uhcTeam.getColor() + player.getDisplayName() + ChatColor.WHITE + ": " + message);
-				
-				if (chatPrefixEnable)
-					e = updateMessageDestinationFromPrefixes(e, message, globalMessagePrefix, teamMessagePrefix, t);
-				
-				return;
-			}
-		}
-		
-		// Si aucun équipe n'a été trouvée pour le joueur, mettre un format par défaut
-		e.setFormat(ChatColor.WHITE + player.getDisplayName() + ": " + message);
-	}
-	
+
 	/**
 	 * Evènement appelé lors du join d'un joueur 
 	 * 
@@ -195,62 +165,25 @@ public class GiWit extends JavaPlugin implements Listener {
 	public void onPlayerJoin(PlayerJoinEvent e) {
 		Player player = e.getPlayer();
 		
+		e.setJoinMessage(ChatColor.DARK_GRAY + "[" + ChatColor.GREEN + "+" + ChatColor.DARK_GRAY + "] " + player.getName());
+		
 		this.setupPlayerInfos(player);
 	}
 
-	// Private
-	//=============================
 	/**
-	 * Modifie la cible du message en fonction du préfix du message
-	 * @param e Evenement de chat
-	 * @param message Message envoyer
-	 * @param globalMessagePrefix Prefix du global
-	 * @param teamMessagePrefix Prefix de la team
-	 * @param t Team dans laquelle le joueur se trouve
-	 * @return
+	 * Change le text lorsqu'un joueur quitte le serveur
+	 * 
+	 * @param e
 	 */
-	private AsyncPlayerChatEvent updateMessageDestinationFromPrefixes(AsyncPlayerChatEvent e, String message, String globalMessagePrefix, String teamMessagePrefix, Team t) {
-		//========================================
-		// ETANT DONNER QUE LE JOUEUR EST DANS UNE EQUIPE, IL FAUT QU'IL COMMUNIQUE DE FACON PRECISE
-		//========================================
-		// Envoie le message a tout le monde
-		e.setCancelled(true);
-		String format = e.getFormat();
-
-		// Ne fait rien de special
-		if (message.startsWith(globalMessagePrefix)) {
-			format = this.removeCharAtPos(format, format.indexOf(globalMessagePrefix));
-		    
-			e.setFormat(format);
-			e.setCancelled(false);
-		} 
-		// Envoie le message uniquement à ceux de la meme équipe
-		else if (message.startsWith(teamMessagePrefix)) {
-			format = this.removeCharAtPos(format, format.indexOf(teamMessagePrefix));
-		    
-			for (String playerName : t.getEntries()) {
-				Player teamMate = Bukkit.getServer().getPlayer(playerName);
-				teamMate.sendMessage(format);
-			}
-		} 
+	@EventHandler
+	public void onPlayerQuit(PlayerQuitEvent e) {
+		Player player = e.getPlayer();
 		
-		return e;
+		e.setQuitMessage(ChatColor.DARK_GRAY + "[" + ChatColor.RED + "-" + ChatColor.DARK_GRAY + "] " + player.getName());
 	}
 	
-	/**
-	 * Supprime un caractère a une position donnée
-	 * 
-	 * @param foo Chaine dans laquelle supprimer le caractère
-	 * @param charPos Index du caractère
-	 * @return
-	 */
-	private String removeCharAtPos(String foo, int charPos) {
-		if (charPos > 0)
-	    	return new StringBuilder(foo).deleteCharAt(charPos).toString();
-		else
-			return foo;
-	}
-
+	// Private
+	//=============================
 	/**
 	 * Attribut les scoreboards a un joueur
 	 * 

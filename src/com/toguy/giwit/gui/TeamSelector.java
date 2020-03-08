@@ -84,7 +84,7 @@ public class TeamSelector {
 			teamLore.add(ChatColor.YELLOW + "# " + ChatColor.DARK_GRAY +  "[Emplacement libre]");
 		
 		teamLore.add("");
-		teamLore.add(ChatColor.GOLD + ">" + ChatColor.GREEN + " Clique pour rejoindre");
+		teamLore.add(ChatColor.GOLD + "»" + ChatColor.GREEN + " Clique pour rejoindre");
 		
 		// Mise a jour de l'item
 		teamMeta.setLore(teamLore);
