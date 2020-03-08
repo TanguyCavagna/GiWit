@@ -28,6 +28,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.RenderType;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
@@ -61,6 +62,8 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 	
 	private int timeBeforePvp;
 	private Boolean isPvpEnable = false;
+	private Boolean startPvpTimer = false;
+	private int resistanceTime = 10;
 	
 	private Boolean isNaturalRegenerationEnable;
 	
@@ -143,6 +146,10 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 				this.isPvpEnable = false;
 				
 				for (Player p : Bukkit.getOnlinePlayers()) {
+					Objective health = this.board.registerNewObjective("Health", "health", "Vie");
+					health.setRenderType(RenderType.HEARTS);
+					health.setDisplaySlot(DisplaySlot.PLAYER_LIST);
+					
 					p.setScoreboard(this.board);
 				}
 				
@@ -521,13 +528,15 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 					
 					worldBorderInfo.setSuffix("+" + (int)((int)wb.getSize() / 2) + "/-" + (int)((int)wb.getSize() / 2));
 					
-					if (timeBeforePvp != -1) {
-						if (timeBeforePvp <= 0) {
-							pvp.setSuffix(ChatColor.GREEN + "✔");
-							isPvpEnable = true;
-						} else {
-							pvp.setSuffix(ChatColor.DARK_RED + "✖");
-							timeBeforePvp--;
+					if (startPvpTimer) {
+						if (timeBeforePvp != -1) {
+							if (timeBeforePvp <= 0) {
+								pvp.setSuffix(ChatColor.GREEN + "✔");
+								isPvpEnable = true;
+							} else {
+								pvp.setSuffix(ChatColor.DARK_RED + "✖");
+								timeBeforePvp--;
+							}
 						}
 					}
 				}
@@ -552,9 +561,22 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 				Player p = Bukkit.getPlayer(playerName);
 				p.getInventory().setItem(0, null);
 				p.teleport(randomSpawn);
-				p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 10 * 20, 100));
+				p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, this.resistanceTime * 20, 100));
 			}
 		}
+		
+		// Active le timer du pvp après la resistance au dégats
+		Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, new Runnable() {
+			
+			@Override
+			public void run() {
+				startPvpTimer = true;
+				
+				Bukkit.broadcastMessage(ChatColor.AQUA + "[" + ChatColor.GOLD + "" + ChatColor.BOLD + "UHC" + ChatColor.RESET + "" + ChatColor.AQUA + "] " + ChatColor.DARK_AQUA + "Les dégats (sauf PVP) sont désormais activés !");
+				Bukkit.broadcastMessage(ChatColor.AQUA + "[" + ChatColor.GOLD + "" + ChatColor.BOLD + "UHC" + ChatColor.RESET + "" + ChatColor.AQUA + "] " + ChatColor.DARK_AQUA + "PVP activé dans " + (timeBeforePvp / 60) + " minutes !");
+			}
+			
+		}, this.resistanceTime * 20);
 	}
 
 	/**
