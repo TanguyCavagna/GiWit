@@ -9,6 +9,9 @@ import org.bukkit.command.*;
 
 public class SwapTabCompletion implements TabCompleter {
 
+	/**
+	 * Retourne la liste des arguments de commande disponibles
+	 */
 	@Override
     public @Nullable List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
 

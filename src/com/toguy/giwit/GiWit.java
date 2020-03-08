@@ -13,28 +13,20 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.*;
-import org.json.simple.*;
-import org.json.simple.parser.*;
 
 import java.util.Arrays;
 
-import com.google.gson.Gson;
 import com.toguy.giwit.commands.SwapCommand;
 import com.toguy.giwit.commands.TwitchCommand;
 import com.toguy.giwit.commands.UHCAdministrationCommand;
 import com.toguy.giwit.commands.tab_completion.SwapTabCompletion;
 import com.toguy.giwit.commands.tab_completion.TwitchTabCompletion;
 import com.toguy.giwit.commands.tab_completion.UHCAdministrationTabCompletion;
-import com.toguy.giwit.events.ClickGuiEvent;
 import com.toguy.giwit.events.UHCEvent;
 import com.toguy.giwit.scoreboards.uhc.TeamScoreboards;
 import com.toguy.giwit.scoreboards.uhc.UHCTeam;
 
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
 
 /**
  * Plugin permettant de gérer un uhc, lié un compte twitch à un joueur ainsi qu'administrer un serveur
@@ -44,10 +36,8 @@ import net.md_5.bungee.api.chat.TextComponent;
  */
 public class GiWit extends JavaPlugin implements Listener {
 	
-	private Scoreboard board;
-		
-	private Twitch twitch;
-	
+	// Public
+	//=============================
 	/**
 	 * Méthode appelée lors de l'activation du plugin
 	 */
@@ -60,9 +50,6 @@ public class GiWit extends JavaPlugin implements Listener {
 		
 		// Debug message
 		Bukkit.getServer().getLogger().info("GiWit plugin is enable");
-		
-		// Setup des scoreboards
-		this.board = TeamScoreboards.getInstance().getScoreboard();
 		
 		TeamScoreboards.purgeScoreboards();
 		
@@ -78,18 +65,7 @@ public class GiWit extends JavaPlugin implements Listener {
 		// Setup de events
 		Bukkit.getServer().getPluginManager().registerEvents(uhcAdministrationCommand, this);
 		Bukkit.getServer().getPluginManager().registerEvents(new UHCEvent(), this);
-		Bukkit.getServer().getPluginManager().registerEvents(new ClickGuiEvent(), this);
 		Bukkit.getServer().getPluginManager().registerEvents(this, this);
-		
-		// TODO : Update le nombre de viewers des streamers
-		/*
-		Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-			@Override
-			public void run() {
-				Bukkit.broadcastMessage("awdawd");
-			}
-		}, 0L, 20L);
-		*/
 		
 		// construit les equipes de base
 		for (Player player : Bukkit.getOnlinePlayers())
@@ -205,6 +181,8 @@ public class GiWit extends JavaPlugin implements Listener {
 		this.setupPlayerInfos(player);
 	}
 
+	// Private
+	//=============================
 	/**
 	 * Modifie la cible du message en fonction du préfix du message
 	 * @param e Evenement de chat

@@ -18,10 +18,11 @@ import com.toguy.giwit.scoreboards.uhc.UHCTeam;
 
 public class TeamSelector {
 
-	//===================== Start Constantes =====================
+	// Constantes
 	public static final String GUI_NAME = "Sélection des teams"; 
 	
-	//===================== Start Fonctions =====================
+	// Public
+	//=============================
 	/**
 	 * Créer l'inventaire pour la sélection des teams
 	 * 
@@ -46,6 +47,8 @@ public class TeamSelector {
 		return gui;
 	}
 	
+	// Private
+	//=============================
 	/**
 	 * Créer un item pour l'équipe
 	 * 

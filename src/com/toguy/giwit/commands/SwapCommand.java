@@ -14,9 +14,13 @@ import org.bukkit.inventory.ItemStack;
 
 public class SwapCommand implements CommandExecutor {
 	
+	// Champs
 	static Random rd = new Random();
 	static int playerPerTeam = 0;
 	
+	/**
+	 * Swap les joueurs ou les inventaires entre joueurs
+	 */
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		

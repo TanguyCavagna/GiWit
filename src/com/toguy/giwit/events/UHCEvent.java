@@ -14,6 +14,13 @@ import com.toguy.giwit.scoreboards.uhc.TeamScoreboards;
 
 public class UHCEvent implements Listener {
 	
+	// Public
+	//=============================
+	/**
+	 * Ouvre le menu de séléction de teams
+	 * 
+	 * @param e
+	 */
 	@EventHandler
 	public void onCompassClick(PlayerInteractEvent e) {
 		Player player = e.getPlayer();
@@ -27,6 +34,11 @@ public class UHCEvent implements Listener {
 		}
 	}
 	
+	/**
+	 * Ajoute le joueurs dans la team cliqueé
+	 * 
+	 * @param e
+	 */
 	@EventHandler
 	public void onTeamColorClick(InventoryClickEvent e) {
 		Player player = (Player)e.getWhoClicked();

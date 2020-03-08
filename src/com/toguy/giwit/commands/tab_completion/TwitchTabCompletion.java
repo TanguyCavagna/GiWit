@@ -11,6 +11,9 @@ import org.bukkit.command.TabCompleter;
 
 public class TwitchTabCompletion implements TabCompleter {
 
+	/**
+	 * Retourne la liste des arguments de commande disponibles
+	 */
 	@Override
     public @Nullable List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
 		List<String> arguments = new ArrayList<String>();

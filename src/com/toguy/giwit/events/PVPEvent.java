@@ -7,6 +7,11 @@ import org.bukkit.event.entity.EntityDamageEvent;
 
 public class PVPEvent implements Listener {
 
+	/**
+	 * Desactive le pvp si le pvp n'est pas activer
+	 * 
+	 * @param e
+	 */
 	@EventHandler
 	public void onPlayerAttack(EntityDamageEvent e) {
 		if (e.getEntity() instanceof Player) {

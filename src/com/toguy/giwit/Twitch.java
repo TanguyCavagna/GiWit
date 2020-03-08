@@ -103,8 +103,6 @@ public class Twitch {
 					JSONParser parser = new JSONParser();
 					JSONObject json = (JSONObject)parser.parse(response.toString());
 					
-					Bukkit.getServer().getLogger().info(response.toString());
-					
 					JSONArray data = (JSONArray)json.get("data");
 
 					if (!data.isEmpty()) {

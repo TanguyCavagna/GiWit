@@ -41,9 +41,9 @@ import net.md_5.bungee.api.chat.TextComponent;
 
 public class UHCAdministrationCommand implements CommandExecutor, Listener {
 	
+	// Champs
 	private JavaPlugin plugin = GiWit.getPlugin(GiWit.class);
 	
-	// Variable de la configuration
 	private Scoreboard board;
 	
 	private Boolean moving;
@@ -64,6 +64,8 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 	private Boolean uhcStarted = false;
 	
 	private World world;
+	
+	// Variables
 	public WorldBorder wb;
 	
 	/**
@@ -73,6 +75,8 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 		this.board = TeamScoreboards.getInstance().getScoreboard();
 	}
 	
+	// Public
+	//=============================
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		this.getConfig();
@@ -220,6 +224,8 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 		player.setGameMode(GameMode.SPECTATOR);
 	}
 	
+	// Private
+	//=============================
 	/**
 	 * Créer un nouveau monde à chaque lancement de serveur
 	 */

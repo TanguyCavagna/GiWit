@@ -23,6 +23,8 @@ public class Episode {
 		this.timeLeft = this.episodeDuration;
 	}
 	
+	// Public
+	//=============================
 	/**
 	 * Met a jour le temps restant en retirant 1 seconde
 	 */
@@ -67,6 +69,8 @@ public class Episode {
 		this.timeLeft = this.episodeDuration;
 	}
 	
+	// Private
+	//=============================
 	/**
 	 * Transforme un entier en chaine de caractère de deux de long
 	 * 

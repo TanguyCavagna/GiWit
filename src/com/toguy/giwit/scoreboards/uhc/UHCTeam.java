@@ -7,17 +7,17 @@ import org.bukkit.scoreboard.Team;
 
 public class UHCTeam {
 
-	//===================== Start Constantes =====================
+	// Constantes
 	private final String PREFIX = "⏺";
 	
-	//===================== Start Champs =====================
+	//Champs
 	private String _name;
 	private ChatColor _color;
 	private Material _item;
 	private int _maxPlayers;
 	private Team _team;
 	
-	//===================== Start Proptiétés =====================
+	//Proptiétés
 	//........... Getter ...........
 	public String getName() { return this._name; }
 	
@@ -38,7 +38,6 @@ public class UHCTeam {
 
 	private void setMaxPlayers(int _maxPlayers) { this._maxPlayers = _maxPlayers; }
 
-	//===================== Start Fonctions =====================
 	/**
 	 * Constructeur
 	 * 

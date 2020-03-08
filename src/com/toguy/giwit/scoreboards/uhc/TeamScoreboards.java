@@ -24,15 +24,14 @@ import com.toguy.giwit.GiWit;
  *
  */
 public class TeamScoreboards {
-
-	//===================== Start Champs =====================
+	
+	// Champs
 	private Scoreboard teamScoreboard;
 	private HashMap<String, UHCTeam> teams;
 	private Team streamers;
 	private Team admins;
 	private JavaPlugin plugin; 
 	
-	//===================== Start SingleTone =====================
 	private static TeamScoreboards teamScoreboardInstance;
 	
 	/**
@@ -54,12 +53,11 @@ public class TeamScoreboards {
 		teamScoreboardInstance = null;
 	}
 	
-	//===================== Start Propiétés =====================
+	// Propiétées
 	public HashMap<String, UHCTeam> getTeams() {
 		return this.teams;
 	}
 	
-	//===================== Start Fonctions =====================
 	/**
 	 * Constructeur
 	 */
@@ -89,6 +87,8 @@ public class TeamScoreboards {
 		}
 	}
 	
+	// Public
+	//=============================
 	public Scoreboard getScoreboard() {
 		return this.teamScoreboard;
 	}
@@ -103,10 +103,13 @@ public class TeamScoreboards {
 	public Scoreboard addPlayerInTeam(Player player, String teamToJoin) {
 		this.removePlayerFromAllTeams(player);
 		
-		String playerDisplayNameWithoutNameColor = player.getDisplayName().startsWith("§") ? player.getDisplayName().substring(2) : player.getDisplayName();
+		Team playerTeam = this.teams.get(ChatColor.stripColor(teamToJoin)).getTeam();
 		
-		player.setDisplayName(this.teams.get(ChatColor.stripColor(teamToJoin)).getColor() + playerDisplayNameWithoutNameColor);
-		player.setPlayerListName(this.teams.get(ChatColor.stripColor(teamToJoin)).getColor() + playerDisplayNameWithoutNameColor);
+		String playerDisplayNameWithoutPrefix = player.getDisplayName().substring(player.getDisplayName().indexOf(player.getName()));
+		
+		String displayName = playerTeam.getColor() + playerTeam.getPrefix() + playerDisplayNameWithoutPrefix;
+		player.setDisplayName(displayName);
+		player.setPlayerListName(displayName);
 		
 		this.teams.get(ChatColor.stripColor(teamToJoin)).getTeam().addEntry(player.getName());
 		

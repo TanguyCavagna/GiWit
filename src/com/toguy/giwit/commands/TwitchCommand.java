@@ -4,6 +4,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTakeLecternBookEvent;
 import org.bukkit.scoreboard.Team;
 
 import com.toguy.giwit.Twitch;
@@ -17,8 +18,11 @@ import net.md_5.bungee.api.chat.TextComponent;
 
 public class TwitchCommand implements CommandExecutor {
 
+	// Champs
 	private Twitch twitch = new Twitch();
 	
+	// Public
+	//=============================
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if (sender instanceof Player) {
@@ -29,6 +33,7 @@ public class TwitchCommand implements CommandExecutor {
 				return true;
 			}
 			
+			// Lie le joueur avec le stream
 			if (args[0].equalsIgnoreCase("link")) {
 				if (args.length > 1 && !args[1].isEmpty()) {
 					// TODO : Décommenter les lignes ce dessous pour réactiver la permission
@@ -37,14 +42,17 @@ public class TwitchCommand implements CommandExecutor {
 							Twitch.Stream stream = this.twitch.getStreamInfosByUserLogin(args[1]);
 
 							if (stream != null && stream.isLive()) {
-								String playerSuffix = p.getName() + ChatColor.RED + " [LIVE] " + ChatColor.LIGHT_PURPLE + "(" + stream.getViewerCount().toString() + ")" + ChatColor.WHITE;
+								String viewers = ChatColor.LIGHT_PURPLE + "(" + stream.getViewerCount().toString() + ")";
+								String playerSuffix = p.getName() + ChatColor.GRAY + " (" + stream.getUserName() + ")" + ChatColor.RED + " [LIVE] " + ChatColor.WHITE;
 								p.setDisplayName(playerSuffix);
 								p.setPlayerListName(playerSuffix);
 								
 								Team playerTeam = TeamScoreboards.getInstance().getPlayerTeam(p);
 								if (playerTeam != null) {
-									p.setDisplayName(playerTeam.getColor() + p.getDisplayName());
-									p.setPlayerListName(playerTeam.getColor() + p.getPlayerListName());
+									String playerDisplayNameWithoutPrefix = p.getDisplayName().substring(p.getDisplayName().indexOf(p.getName()));
+									String playerName = playerTeam.getColor() + playerTeam.getPrefix() + playerDisplayNameWithoutPrefix;
+									p.setDisplayName(playerName);
+									p.setPlayerListName(playerName);
 								}
 								
 								p.setScoreboard(TeamScoreboards.getInstance().getScoreboard());
@@ -72,8 +80,8 @@ public class TwitchCommand implements CommandExecutor {
 					
 					Team playerTeam = TeamScoreboards.getInstance().getPlayerTeam(p);
 					if (playerTeam != null) {
-						p.setDisplayName(playerTeam.getColor() + p.getName());
-						p.setPlayerListName(playerTeam.getColor() + p.getName());
+						p.setDisplayName(playerTeam.getColor() + playerTeam.getPrefix() + p.getName());
+						p.setPlayerListName(playerTeam.getColor() + playerTeam.getPrefix() + p.getName());
 					}
 					
 					this.twitch.removePlayerInPlayerTwitchname(p.getName());
@@ -93,6 +101,8 @@ public class TwitchCommand implements CommandExecutor {
 		return true;
 	}
 	
+	// Private
+	//=============================
 	/**
 	 * Créer le message lors de la validation du lien avec le compte twitch
 	 * 
