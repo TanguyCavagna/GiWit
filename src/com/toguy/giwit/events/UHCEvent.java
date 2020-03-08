@@ -9,7 +9,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
-import com.toguy.giwit.gui.uhc.TeamSelector;
+import com.toguy.giwit.gui.TeamSelector;
 import com.toguy.giwit.scoreboards.uhc.TeamScoreboards;
 
 public class UHCEvent implements Listener {

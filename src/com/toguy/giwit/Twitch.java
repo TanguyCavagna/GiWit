@@ -7,6 +7,15 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
+import org.bukkit.Bukkit;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
+import com.google.gson.Gson;
+
 public class Twitch {
 	
 	// Constantes
@@ -60,7 +69,7 @@ public class Twitch {
 	 * @return La réponse de la requete
 	 * @throws Exception
 	 */
-	public String getStreamInfosByUserLogin(String user_login) throws Exception {
+	public @Nullable Stream getStreamInfosByUserLogin(String user_login) throws Exception {
 		try {
 			URL url = new URL(STREAM_INFOS_URL + "?user_login=" + user_login);
 			HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -91,7 +100,20 @@ public class Twitch {
 					
 					con.disconnect();
 					
-					return response.toString();
+					JSONParser parser = new JSONParser();
+					JSONObject json = (JSONObject)parser.parse(response.toString());
+					
+					Bukkit.getServer().getLogger().info(response.toString());
+					
+					JSONArray data = (JSONArray)json.get("data");
+
+					if (!data.isEmpty()) {
+						Gson g = new Gson();
+						Stream stream = g.fromJson(data.get(0).toString(), Stream.class);
+						
+						return stream;
+					} else
+						return null;
 				default:
 					throw new Exception("Erreur lors de la requete. Code: " + status);
 			}

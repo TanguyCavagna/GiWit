@@ -15,9 +15,6 @@ commands:
   alert:
     usage: /<command>
     description: Affiche un titre a tous les joueurs
-  gui:
-    usage: /<command>
-    description: Commande a supprimer
   swap:
     usage: /<command>
     description: Swap les joueurs entre eux ou les inventaires

@@ -19,9 +19,12 @@ import org.json.simple.parser.*;
 import java.util.Arrays;
 
 import com.google.gson.Gson;
-import com.toguy.giwit.commands.GUICommand;
 import com.toguy.giwit.commands.SwapCommand;
+import com.toguy.giwit.commands.TwitchCommand;
 import com.toguy.giwit.commands.UHCAdministrationCommand;
+import com.toguy.giwit.commands.tab_completion.SwapTabCompletion;
+import com.toguy.giwit.commands.tab_completion.TwitchTabCompletion;
+import com.toguy.giwit.commands.tab_completion.UHCAdministrationTabCompletion;
 import com.toguy.giwit.events.ClickGuiEvent;
 import com.toguy.giwit.events.UHCEvent;
 import com.toguy.giwit.scoreboards.uhc.TeamScoreboards;
@@ -56,7 +59,7 @@ public class GiWit extends JavaPlugin implements Listener {
 		}
 		
 		// Debug message
-		Bukkit.getServer().getLogger().info("awdawdawd-Player plugin is enable");
+		Bukkit.getServer().getLogger().info("GiWit plugin is enable");
 		
 		// Setup des scoreboards
 		this.board = TeamScoreboards.getInstance().getScoreboard();
@@ -66,16 +69,17 @@ public class GiWit extends JavaPlugin implements Listener {
 		// Setup des commandes
 		UHCAdministrationCommand uhcAdministrationCommand = new UHCAdministrationCommand();
 		getCommand("uhc").setExecutor(uhcAdministrationCommand);
-		getCommand("gui").setExecutor(new GUICommand());
 		getCommand("swap").setExecutor(new SwapCommand());
+		getCommand("twitch").setExecutor(new TwitchCommand());
+		getCommand("uhc").setTabCompleter(new UHCAdministrationTabCompletion());
+		getCommand("swap").setTabCompleter(new SwapTabCompletion());
+		getCommand("twitch").setTabCompleter(new TwitchTabCompletion());
 		
 		// Setup de events
 		Bukkit.getServer().getPluginManager().registerEvents(uhcAdministrationCommand, this);
 		Bukkit.getServer().getPluginManager().registerEvents(new UHCEvent(), this);
 		Bukkit.getServer().getPluginManager().registerEvents(new ClickGuiEvent(), this);
 		Bukkit.getServer().getPluginManager().registerEvents(this, this);
-		
-		this.twitch = new Twitch();
 		
 		// TODO : Update le nombre de viewers des streamers
 		/*
@@ -98,7 +102,7 @@ public class GiWit extends JavaPlugin implements Listener {
 	 * Méthode appelée lors de la désactivation du plugin
 	 */
 	public void onDisable() {
-		Bukkit.getServer().getLogger().info("Player-Player plugin is disable");
+		Bukkit.getServer().getLogger().info("GiWit plugin is disable");
 	}
 	
 	/**
@@ -110,85 +114,6 @@ public class GiWit extends JavaPlugin implements Listener {
 	 * @param args Arguments suivants la commande
 	 */
 	public boolean onCommand(CommandSender sender, Command cmd, String commandlabel, String[] args) {
-		// Permet de lié le joueur avec un compte twitch et d'avoir des stats concernant le stream
-		if (cmd.getName().equalsIgnoreCase("twitch")) {
-			if (sender instanceof Player) {
-				Player p = (Player)sender;
-				
-				if (args.length == 0) {
-					p.sendMessage(ChatColor.BLUE + "Si tu veux te lier a une chaine, fait /twitch link <chaine>. Si tu veux dé lié, fait /twitch unlink");
-					return true;
-				}
-				
-				if (args[0].equalsIgnoreCase("link")) {
-					if (args.length > 1 && !args[1].isEmpty()) {
-						// TODO : Décommenter les lignes ce dessous pour réactiver la permission
-						//if (!p.isOp()) {
-							try {
-								String response = this.twitch.getStreamInfosByUserLogin(args[1]);
-
-								JSONParser parser = new JSONParser();
-								JSONObject json = (JSONObject)parser.parse(response);
-								JSONArray data = (JSONArray)json.get("data");
-								
-								Gson g = new Gson();
-								Twitch.Stream stream = g.fromJson(data.get(0).toString(), Twitch.Stream.class);
-								
-								if (stream.isLive()) {
-									String playerSuffix = p.getName() + ChatColor.RED + " [LIVE] " + ChatColor.LIGHT_PURPLE + "(" + stream.getViewerCount().toString() + ")" + ChatColor.WHITE;
-									p.setDisplayName(playerSuffix);
-									p.setPlayerListName(playerSuffix);
-									
-									Team playerTeam = TeamScoreboards.getInstance().getPlayerTeam(p);
-									if (playerTeam != null) {
-										p.setDisplayName(playerTeam.getColor() + p.getDisplayName());
-										p.setPlayerListName(playerTeam.getColor() + p.getPlayerListName());
-									}
-									
-									p.setScoreboard(TeamScoreboards.getInstance().getScoreboard());
-									
-									this.twitch.addPlayerInPlayerTwichName(p.getName(), stream.getUserName());
-									
-									p.spigot().sendMessage(this.createTwitchLinkMessage(args[1]));
-								} else {
-									p.sendMessage(ChatColor.RED + "[Error]" + ChatColor.WHITE + "Le live de " + args[1] + " n'est pas on.");
-								}
-							} catch (Exception e) {
-								p.sendMessage(ChatColor.DARK_RED + e.getStackTrace().toString());
-							}
-						//} else {
-						//	p.sendMessage("Tu es admin donc pas d'autre grade pour toi.");
-						//}
-					}
-				}
-				
-				// Retire le lien entre le joueur et le stream
-				if (args[0].equalsIgnoreCase("unlink")) {
-					if (p.getDisplayName() != p.getName()) {
-						p.setDisplayName(p.getName());
-						p.setPlayerListName(p.getName());
-						
-						Team playerTeam = TeamScoreboards.getInstance().getPlayerTeam(p);
-						if (playerTeam != null) {
-							p.setDisplayName(playerTeam.getColor() + p.getName());
-							p.setPlayerListName(playerTeam.getColor() + p.getName());
-						}
-						
-						this.twitch.removePlayerInPlayerTwitchname(p.getName());
-						
-						if (p.isOp()) {
-							if (!TeamScoreboards.getInstance().isPlayerInAdmins(p))
-								TeamScoreboards.getInstance().removePlayerFromAdmins(p);
-						}
-						
-						p.setScoreboard(this.board);
-						
-						p.sendMessage(ChatColor.GREEN + "Le lien à bien été supprimé !");
-					}
-				}
-			}
-		}
-		
 		// Affiche un message global du type :
 		//
 		// ---------------------------------------
@@ -279,26 +204,6 @@ public class GiWit extends JavaPlugin implements Listener {
 		
 		this.setupPlayerInfos(player);
 	}
-	
-	/**
-	 * Créer le message lors de la validation du lien avec le compte twitch
-	 * 
-	 * @return
-	 */
-	public TextComponent createTwitchLinkMessage(String twitchUsername) {
-		TextComponent mainMsg = new TextComponent("Le lien avec ");
-		mainMsg.setColor(ChatColor.GREEN);
-		TextComponent link = new TextComponent("twitch.tv/" + twitchUsername);
-		link.setBold(true);
-		link.setUnderlined(true);
-		link.setColor(ChatColor.DARK_PURPLE);
-		link.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Click me !").create()));
-		link.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://twitch.tv/" + twitchUsername));
-		mainMsg.addExtra(link);
-		mainMsg.addExtra(" à bien été établie !");
-		
-		return mainMsg;
-	}
 
 	/**
 	 * Modifie la cible du message en fonction du préfix du message
@@ -367,6 +272,6 @@ public class GiWit extends JavaPlugin implements Listener {
 		}
 
 		player.setScoreboard(TeamScoreboards.getInstance().getScoreboard());
-		player.getInventory().addItem(new ItemStack(Material.COMPASS));
+		player.getInventory().setItem(0, new ItemStack(Material.COMPASS));
 	}
 }

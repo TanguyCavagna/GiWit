@@ -1,4 +1,4 @@
-package com.toguy.giwit.gui.uhc;
+package com.toguy.giwit.gui;
 
 import java.util.ArrayList;
 import java.util.Set;
