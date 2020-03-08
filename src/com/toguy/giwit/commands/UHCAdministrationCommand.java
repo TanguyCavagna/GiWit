@@ -246,7 +246,7 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 			creator.generateStructures(true);
 			world = creator.createWorld();
 		} else {
-			world = Bukkit.getWorld("world");
+			world = Bukkit.getWorld("UHC-e07816c2");
 		}
 		
 		this.generateSpawnPlatform();
