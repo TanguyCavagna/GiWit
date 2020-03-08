@@ -1,7 +1,10 @@
 package com.toguy.giwit.commands;
 
+import java.io.File;
 import java.util.Random;
 import java.util.UUID;
+
+import javax.annotation.Nullable;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -102,12 +105,14 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 						this.uhcStarted = false;
 						Bukkit.getScheduler().cancelTask(episodeTimeUpdater);
 						
-						if (args.length > 1 && !args[1].isEmpty())
-							this.createWorld(args[1]);
-						else
-							this.createWorld("");
+						Object lock = new Object();
 						
-						this.createScoreboard();
+						synchronized (lock) {
+							if (args.length > 1 && !args[1].isEmpty())
+								this.createWorld(args[1]);
+							else
+								this.createWorld("");
+						}
 						
 						for (Player p : Bukkit.getOnlinePlayers()) {
 							p.teleport(world.getSpawnLocation());
@@ -131,8 +136,6 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 			if (args[0].equalsIgnoreCase("start")) {
 
 				this.isPvpEnable = false;
-				
-				this.createScoreboard();
 				
 				for (Player p : Bukkit.getOnlinePlayers()) {
 					p.setScoreboard(this.board);
@@ -166,7 +169,7 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 								Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 									@Override
 									public void run() {
-										wb.setSize(endSize * 2, timeToShrink);
+										wb.setSize(endSize * 2, timeToShrink * 20);
 									}
 								}, timeBeforeShrink * 20);
 							}
@@ -177,9 +180,9 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 						teleportAllPlayers();
 						
 						if (!isNaturalRegenerationEnable)
-							Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "gamerule naturalRegeneration false");
+							player.performCommand("gamerule naturalRegeneration false");
 						else
-							Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "gamerule naturalRegeneration true");
+							player.performCommand("gamerule naturalRegeneration true");
 					}
 				}, this.timeToStartWhenReady * 20);
 			}
@@ -225,9 +228,17 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 	public void onPlayerJoin(PlayerJoinEvent e) {
 		Player player = (Player)e.getPlayer();
 		
+		if (!player.isOp())
+			player.setGameMode(GameMode.ADVENTURE);
+		
 		player.teleport(this.world.getSpawnLocation());
 	}
 	
+	/**
+	 * Met en spec chaque joueurs mort
+	 * 
+	 * @param e
+	 */
 	@EventHandler
 	public void onPlayerDeath(PlayerDeathEvent e) {
 		Player player = (Player)e.getEntity();
@@ -242,15 +253,59 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 	 */
 	private void createWorld(String remakeWorld) {	
 		if (remakeWorld.equalsIgnoreCase("world")) {
-			WorldCreator creator = new WorldCreator("UHC-" + UUID.randomUUID().toString().split("-")[0]);
-			creator.generateStructures(true);
-			world = creator.createWorld();
+			World delete = Bukkit.getWorld("UHC");
+			
+			for (Player player : Bukkit.getOnlinePlayers())
+				player.teleport(Bukkit.getWorld("world").getSpawnLocation());
+			
+			if (delete != null) {
+				
+				File deleteFolder = delete.getWorldFolder();
+				
+				Bukkit.unloadWorld(delete, false);
+				this.deleteWorld(deleteFolder);
+				
+				WorldCreator creator = new WorldCreator("UHC");
+				creator.generateStructures(true);
+				world = creator.createWorld();
+				
+				for (Player player : Bukkit.getOnlinePlayers())
+					player.teleport(world.getSpawnLocation());
+				
+				this.generateSpawnPlatform();
+				this.createWorldBorder(0, 0, this.startSize);
+				
+				this.createScoreboard();
+			}
 		} else {
-			world = Bukkit.getWorld("UHC-30b25aa9");
+			world = Bukkit.getWorld("UHC");
+			
+			this.generateSpawnPlatform();
+			this.createWorldBorder(0, 0, this.startSize);
+			
+			this.createScoreboard();
+		}
+	}
+	
+	/**
+	 * Supprime un monde
+	 * 
+	 * @param path
+	 * @return
+	 */
+	public synchronized boolean deleteWorld(File path) {
+		if(path.exists()) {
+		    File files[] = path.listFiles();
+		    for(int i=0; i<files.length; i++) {
+		        if(files[i].isDirectory()) {
+		            deleteWorld(files[i]);
+		        } else {
+		            files[i].delete();
+		        }
+		    }
 		}
 		
-		this.generateSpawnPlatform();
-		this.createWorldBorder(0, 0, this.startSize);
+		return(path.delete());
 	}
 
 	/**
@@ -449,7 +504,7 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 						episodeNumber.setSuffix(episode.getEpisodeNbr() + "");
 					}
 					
-					worldBorderInfo.setSuffix("+" + (int)wb.getSize() + "/-" + (int)wb.getSize());
+					worldBorderInfo.setSuffix("+" + (int)((int)wb.getSize() / 2) + "/-" + (int)((int)wb.getSize() / 2));
 					
 					if (timeBeforePvp != -1) {
 						if (timeBeforePvp <= 0) {
@@ -480,6 +535,7 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 			
 			for (String playerName : team.getEntries()) {
 				Player p = Bukkit.getPlayer(playerName);
+				p.getInventory().setItem(0, null);
 				p.teleport(randomSpawn);
 				p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 10 * 20, 100));
 			}

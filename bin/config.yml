@@ -1,6 +1,6 @@
 #Choose the coundown time to start the game when enough teams are ready
 #This value must be set to 6 or more. If you set a value of 5 or less, it will cause an unpredictable behavior.
-time-to-start-when-ready: 10
+time-to-start-when-ready: 2
 
 # This feature might not make a lot of sense for UHC but if you want to enable natural health regen you can do it here.
 enable-health-regen: false
@@ -32,10 +32,10 @@ border:
   end-size: 100
 
   #If moving is set to true, the time in seconds for the border to shrink to end-size
-  time-to-shrink: 1600
+  time-to-shrink: 20
 
   #If moving is set to true, the time in seconds for the border before it start moving
-  time-before-shrink: 1600
+  time-before-shrink: 20
 
 #Be sure to have the correct amount of team in the team list bellow
 team-count: 8
