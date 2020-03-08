@@ -1,6 +1,8 @@
 package com.toguy.giwit.commands;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import org.bukkit.Bukkit;
@@ -162,7 +164,7 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 					public void run() {
 						countdown--;
 						
-						Bukkit.broadcastMessage("Start in " + countdown + "s");
+						Bukkit.broadcastMessage(getServerMessagePrefix() + ChatColor.DARK_GREEN + "Début de la partie dans " + ChatColor.GREEN + countdown + ChatColor.DARK_GREEN + " secondes");
 					}
 					
 				}, 0L, 20L);
@@ -190,6 +192,19 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 						}
 						
 						teleportAllPlayers();
+						
+						// Active le timer du pvp après la resistance au dégats
+						Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+							
+							@Override
+							public void run() {
+								startPvpTimer = true;
+								
+								Bukkit.broadcastMessage(getServerMessagePrefix() + ChatColor.DARK_AQUA + "Les dégats (sauf PVP) sont désormais activés !");
+								Bukkit.broadcastMessage(getServerMessagePrefix() + ChatColor.DARK_AQUA + "PVP activé dans " + (timeBeforePvp / 60) + " minutes !");
+							}
+							
+						}, resistanceTime * 20);
 						
 						if (!isNaturalRegenerationEnable)
 							player.performCommand("gamerule naturalRegeneration false");
@@ -266,6 +281,8 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 			}
 			
 		}, 2);
+		
+		this.doesATeamHasWin();
 	}
 
 	// Private
@@ -308,6 +325,38 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 			this.createScoreboard();
 		}
 	}
+
+	/**
+	 * Ecrit un message si une équipe a gagner
+	 * 
+	 * @return
+	 */
+	private Boolean doesATeamHasWin() {
+		List<Team> teamsAlive = new ArrayList<Team>();
+		for (UHCTeam uhcTeam : TeamScoreboards.getInstance().getTeams().values()) {
+			Team team = uhcTeam.getTeam();
+			
+			for (String playerName : team.getEntries()) {
+				Player p = Bukkit.getPlayer(playerName);
+				
+				if (p != null) {
+					if (p.getHealth() > 0) {
+						teamsAlive.add(team);
+						break;
+					}
+				}
+			}
+		}
+		
+		if (teamsAlive.size() == 1) {
+			Bukkit.broadcastMessage(this.getServerMessagePrefix() + ChatColor.GOLD + " GG à la team " + teamsAlive.get(0).getColor() + teamsAlive.get(0).getName() + ChatColor.GOLD + " pour avoir gagner la partie !");
+			this.uhcStarted = false;
+			
+			return true;
+		}
+		
+		return false;
+	}
 	
 	/**
 	 * Supprime un monde
@@ -315,7 +364,7 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 	 * @param path
 	 * @return
 	 */
-	public synchronized boolean deleteWorld(File path) {
+ 	public synchronized boolean deleteWorld(File path) {
 		if(path.exists()) {
 		    File files[] = path.listFiles();
 		    for(int i=0; i<files.length; i++) {
@@ -522,6 +571,7 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 					episodeTimeLeft.setSuffix(episode.getTimeLeftHasString() + "");
 	
 					if (episode.getTimeLeft() <= 0) {
+						Bukkit.broadcastMessage(getServerMessagePrefix() + ChatColor.DARK_AQUA + "------------- Fin de l'épisode " + episode.getEpisodeNbr() + " -------------");
 						episode.nextEpisode();
 						episodeNumber.setSuffix(episode.getEpisodeNbr() + "");
 					}
@@ -564,19 +614,6 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 				p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, this.resistanceTime * 20, 100));
 			}
 		}
-		
-		// Active le timer du pvp après la resistance au dégats
-		Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, new Runnable() {
-			
-			@Override
-			public void run() {
-				startPvpTimer = true;
-				
-				Bukkit.broadcastMessage(ChatColor.AQUA + "[" + ChatColor.GOLD + "" + ChatColor.BOLD + "UHC" + ChatColor.RESET + "" + ChatColor.AQUA + "] " + ChatColor.DARK_AQUA + "Les dégats (sauf PVP) sont désormais activés !");
-				Bukkit.broadcastMessage(ChatColor.AQUA + "[" + ChatColor.GOLD + "" + ChatColor.BOLD + "UHC" + ChatColor.RESET + "" + ChatColor.AQUA + "] " + ChatColor.DARK_AQUA + "PVP activé dans " + (timeBeforePvp / 60) + " minutes !");
-			}
-			
-		}, this.resistanceTime * 20);
 	}
 
 	/**
@@ -597,4 +634,11 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 		return result;
 	}
 
+	/**
+	 * Retourne le prefix pour les message venant du plugin
+	 * @return
+	 */
+	private String getServerMessagePrefix() {
+		return ChatColor.AQUA + "[" + ChatColor.GOLD + "" + ChatColor.BOLD + "UHC" + ChatColor.RESET + "" + ChatColor.AQUA + "] ";
+	}
 }
