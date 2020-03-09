@@ -303,19 +303,19 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 				
 				Bukkit.unloadWorld(delete, false);
 				this.deleteWorld(deleteFolder);
-				
-				WorldCreator creator = new WorldCreator("UHC");
-				creator.generateStructures(true);
-				world = creator.createWorld();
-				
-				for (Player player : Bukkit.getOnlinePlayers())
-					player.teleport(world.getSpawnLocation());
-				
-				this.generateSpawnPlatform();
-				this.createWorldBorder(0, 0, this.startSize);
-				
-				this.createScoreboard();
 			}
+			
+			WorldCreator creator = new WorldCreator("UHC");
+			creator.generateStructures(true);
+			world = creator.createWorld();
+			
+			for (Player player : Bukkit.getOnlinePlayers())
+				player.teleport(world.getSpawnLocation());
+			
+			this.generateSpawnPlatform();
+			this.createWorldBorder(0, 0, this.startSize);
+			
+			this.createScoreboard();
 		} else {
 			world = Bukkit.getWorld("UHC");
 			
