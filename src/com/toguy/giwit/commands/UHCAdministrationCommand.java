@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import javax.swing.text.StyledEditorKit.UnderlineAction;
+
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -292,6 +294,8 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 	 */
 	private void createWorld(String remakeWorld) {	
 		if (remakeWorld.equalsIgnoreCase("world")) {
+			Bukkit.broadcastMessage(this.getServerMessagePrefix() + ChatColor.DARK_AQUA + "Le serveur recréer un monde. Veuillez ne plus lancer de commandes jusqu'à ce que le monde soit terminé !");
+			
 			World delete = Bukkit.getWorld("UHC");
 			
 			for (Player player : Bukkit.getOnlinePlayers())
@@ -312,10 +316,14 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 			for (Player player : Bukkit.getOnlinePlayers())
 				player.teleport(world.getSpawnLocation());
 			
+			world = Bukkit.getWorld("UHC");
+			
 			this.generateSpawnPlatform();
 			this.createWorldBorder(0, 0, this.startSize);
 			
 			this.createScoreboard();
+			
+			Bukkit.broadcastMessage(this.getServerMessagePrefix() + ChatColor.DARK_AQUA + "Monde correctement créer !");
 		} else {
 			world = Bukkit.getWorld("UHC");
 			
@@ -323,6 +331,8 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 			this.createWorldBorder(0, 0, this.startSize);
 			
 			this.createScoreboard();
+			
+			Bukkit.broadcastMessage(this.getServerMessagePrefix() + ChatColor.DARK_AQUA + "Partie correctement recréer !");
 		}
 	}
 

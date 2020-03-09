@@ -51,7 +51,7 @@ public class GiWit extends JavaPlugin implements Listener {
 		
 		// Debug message
 		Bukkit.getServer().getLogger().info("GiWit plugin is enable");
-		Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "gamerule sendCommandFeddback false");
+		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "gamerule sendCommandFeedback false");
 		
 		TeamScoreboards.purgeScoreboards();
 		
