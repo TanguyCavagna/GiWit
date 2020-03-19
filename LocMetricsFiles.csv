@@ -1,0 +1,15 @@
+File,LOC,SLOC-P,SLOC-L,MVG,BLOC,C&SLOC,CLOC,CWORD,HCLOC,HCWORD
+C:\Users\cavagnat\Documents\Programmation\Java\GiWit\src\com\toguy\giwit\Episode.java,85,35,27,4,12,0,38,107,0,0
+C:\Users\cavagnat\Documents\Programmation\Java\GiWit\src\com\toguy\giwit\GiWit.java,206,121,97,15,28,1,57,208,0,0
+C:\Users\cavagnat\Documents\Programmation\Java\GiWit\src\com\toguy\giwit\Twitch.java,164,92,75,7,37,0,35,117,0,0
+C:\Users\cavagnat\Documents\Programmation\Java\GiWit\src\com\toguy\giwit\commands\SwapCommand.java,150,103,85,16,29,0,18,106,0,0
+C:\Users\cavagnat\Documents\Programmation\Java\GiWit\src\com\toguy\giwit\commands\TwitchCommand.java,148,99,80,17,28,0,21,81,0,0
+C:\Users\cavagnat\Documents\Programmation\Java\GiWit\src\com\toguy\giwit\commands\UHCAdministrationCommand.java,644,426,314,65,110,0,108,418,0,0
+C:\Users\cavagnat\Documents\Programmation\Java\GiWit\src\com\toguy\giwit\commands\tab_completion\SwapTabCompletion.java,32,18,14,3,11,0,3,11,0,0
+C:\Users\cavagnat\Documents\Programmation\Java\GiWit\src\com\toguy\giwit\commands\tab_completion\TwitchTabCompletion.java,30,18,14,2,9,0,3,11,0,0
+C:\Users\cavagnat\Documents\Programmation\Java\GiWit\src\com\toguy\giwit\commands\tab_completion\UHCAdministrationTabCompletion.java,31,20,16,2,8,0,3,11,0,0
+C:\Users\cavagnat\Documents\Programmation\Java\GiWit\src\com\toguy\giwit\events\PVPEvent.java,23,13,9,1,5,0,5,16,0,0
+C:\Users\cavagnat\Documents\Programmation\Java\GiWit\src\com\toguy\giwit\events\UHCEvent.java,148,83,63,12,24,0,41,194,0,0
+C:\Users\cavagnat\Documents\Programmation\Java\GiWit\src\com\toguy\giwit\gui\TeamSelector.java,97,49,42,6,23,0,25,101,0,0
+C:\Users\cavagnat\Documents\Programmation\Java\GiWit\src\com\toguy\giwit\scoreboards\uhc\TeamScoreboards.java,178,89,70,13,33,0,56,147,0,0
+C:\Users\cavagnat\Documents\Programmation\Java\GiWit\src\com\toguy\giwit\scoreboards\uhc\UHCTeam.java,59,31,29,0,17,0,11,26,0,0
