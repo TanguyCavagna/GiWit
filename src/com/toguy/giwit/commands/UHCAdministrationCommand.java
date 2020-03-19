@@ -19,11 +19,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.entity.PlayerLeashEntityEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
@@ -115,8 +112,14 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 						synchronized (lock) {
 							if (args.length > 1 && !args[1].isEmpty())
 								this.createWorld(args[1]);
-							else
+							else {
+								if (world == null) {
+									this.sendClickableCommandToPlayer("Aucun monde UHC existant. Veuillez faire ", "/uhc remake world", " pour générer le monde !", player);
+									return true;
+								}
+								
 								this.createWorld("");
+							}
 						}
 						
 						for (Player p : Bukkit.getOnlinePlayers()) {
@@ -183,7 +186,7 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 								Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 									@Override
 									public void run() {
-										wb.setSize(endSize * 2, timeToShrink * 20);
+										wb.setSize(endSize * 2, timeToShrink);
 									}
 								}, timeBeforeShrink * 20);
 							}
@@ -303,19 +306,19 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 				
 				Bukkit.unloadWorld(delete, false);
 				this.deleteWorld(deleteFolder);
-				
-				WorldCreator creator = new WorldCreator("UHC");
-				creator.generateStructures(true);
-				world = creator.createWorld();
-				
-				for (Player player : Bukkit.getOnlinePlayers())
-					player.teleport(world.getSpawnLocation());
-				
-				this.generateSpawnPlatform();
-				this.createWorldBorder(0, 0, this.startSize);
-				
-				this.createScoreboard();
 			}
+						
+			WorldCreator creator = new WorldCreator("UHC");
+			creator.generateStructures(true);
+			world = creator.createWorld();
+			
+			this.generateSpawnPlatform();
+			this.createWorldBorder(0, 0, this.startSize);
+			
+			for (Player player : Bukkit.getOnlinePlayers())
+				player.teleport(world.getSpawnLocation());
+			
+			this.createScoreboard();
 		} else {
 			world = Bukkit.getWorld("UHC");
 			

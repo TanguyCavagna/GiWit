@@ -8,12 +8,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scoreboard.*;
 
 import java.util.Arrays;
 
@@ -25,7 +23,6 @@ import com.toguy.giwit.commands.tab_completion.TwitchTabCompletion;
 import com.toguy.giwit.commands.tab_completion.UHCAdministrationTabCompletion;
 import com.toguy.giwit.events.UHCEvent;
 import com.toguy.giwit.scoreboards.uhc.TeamScoreboards;
-import com.toguy.giwit.scoreboards.uhc.UHCTeam;
 
 import net.md_5.bungee.api.ChatColor;
 

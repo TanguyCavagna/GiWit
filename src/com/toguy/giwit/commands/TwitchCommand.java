@@ -45,7 +45,6 @@ public class TwitchCommand implements CommandExecutor {
 							Twitch.Stream stream = this.twitch.getStreamInfosByUserLogin(args[1]);
 
 							if (stream != null && stream.isLive()) {
-								String viewers = ChatColor.LIGHT_PURPLE + "(" + stream.getViewerCount().toString() + ")";
 								String playerSuffix = p.getName() + ChatColor.GRAY + " (" + stream.getUserName() + ")" + ChatColor.RED + " [LIVE] " + ChatColor.WHITE;
 								p.setDisplayName(playerSuffix);
 								p.setPlayerListName(playerSuffix);
