@@ -22,6 +22,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -48,6 +49,7 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 	private JavaPlugin plugin = GiWit.getPlugin(GiWit.class);
 	
 	private Scoreboard board;
+	private Random random;
 	
 	private Boolean moving;
 	private int startSize;
@@ -65,6 +67,7 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 	private int resistanceTime = 10;
 	
 	private Boolean isNaturalRegenerationEnable;
+	private int covidDamageAmount;
 	
 	private Boolean uhcStarted = false;
 	
@@ -78,6 +81,7 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 	 */
 	public UHCAdministrationCommand() {
 		this.board = TeamScoreboards.getInstance().getScoreboard();
+		this.random = new Random();
 	}
 	
 	// Public
@@ -113,9 +117,15 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 							if (args.length > 1 && !args[1].isEmpty())
 								this.createWorld(args[1]);
 							else {
+								// Si le monde n'a pas été chargé, va le chercher dans les mondes.
+								// Si il n'existe pas, demande au joueur de le créer
 								if (world == null) {
-									this.sendClickableCommandToPlayer("Aucun monde UHC existant. Veuillez faire ", "/uhc remake world", " pour générer le monde !", player);
-									return true;
+									world = Bukkit.getServer().createWorld(new WorldCreator("UHC"));
+									
+									if (world == null) {
+										this.sendClickableCommandToPlayer("Aucun monde UHC existant. Veuillez faire ", "/uhc remake world", " pour générer le monde !", player);
+										return true;
+									}
 								}
 								
 								this.createWorld("");
@@ -125,6 +135,8 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 						for (Player p : Bukkit.getOnlinePlayers()) {
 							p.teleport(world.getSpawnLocation());
 							p.setScoreboard(this.board);
+							p.getInventory().clear();
+							p.getInventory().setItem(0, new ItemStack(Material.COMPASS));
 							
 							if (!player.isOp())
 								player.setGameMode(GameMode.ADVENTURE);
@@ -509,6 +521,7 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 		this.timeToStartWhenReady = this.plugin.getConfig().getInt("time-to-start-when-ready");
 		this.timeBeforePvp = this.plugin.getConfig().getInt("gentlemen-rule");
 		this.isNaturalRegenerationEnable = this.plugin.getConfig().getBoolean("enable-health-regen");
+		this.covidDamageAmount = this.plugin.getConfig().getInt("covid-damage-amount");
 	}
 	
 	/**
@@ -583,6 +596,22 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 						Bukkit.broadcastMessage(getServerMessagePrefix() + ChatColor.DARK_AQUA + "------------- Fin de l'épisode " + episode.getEpisodeNbr() + " -------------");
 						episode.nextEpisode();
 						episodeNumber.setSuffix(episode.getEpisodeNbr() + "");
+						
+						UHCTeam uhcTeam = (UHCTeam)TeamScoreboards.getInstance().getTeams().values().toArray()[random.nextInt(TeamScoreboards.getInstance().getTeams().size())];
+						Team t = uhcTeam.getTeam();
+						
+						while (t.getEntries().size() <= 0) {
+							uhcTeam = (UHCTeam)TeamScoreboards.getInstance().getTeams().values().toArray()[random.nextInt(TeamScoreboards.getInstance().getTeams().size())];
+							t = uhcTeam.getTeam();
+						}
+						
+						Bukkit.broadcastMessage(getServerMessagePrefix() + ChatColor.DARK_AQUA + "Les joueurs de l'équipe " + t.getColor() + t.getDisplayName() + ChatColor.DARK_AQUA + " ont été testé positif au covid-19 et ont perdu " + ((int)(covidDamageAmount / 2)) + " coeurs !");
+						
+						for (String playerName : t.getEntries()) {
+							Player p = Bukkit.getPlayer(playerName);
+							
+							p.setHealth(p.getHealth() - covidDamageAmount);
+						}
 					}
 					
 					worldBorderInfo.setSuffix("+" + (int)((int)wb.getSize() / 2) + "/-" + (int)((int)wb.getSize() / 2));

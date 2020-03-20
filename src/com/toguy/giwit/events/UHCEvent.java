@@ -1,5 +1,7 @@
 package com.toguy.giwit.events;
 
+import java.util.ArrayList;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -10,6 +12,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scoreboard.Team;
 
@@ -19,6 +22,8 @@ import com.toguy.giwit.scoreboards.uhc.TeamScoreboards;
 import com.toguy.giwit.scoreboards.uhc.UHCTeam;
 
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 
 public class UHCEvent implements Listener {
 	
@@ -50,11 +55,29 @@ public class UHCEvent implements Listener {
 	@EventHandler
 	public void onTeamColorClick(InventoryClickEvent e) {
 		Player player = (Player)e.getWhoClicked();
-		String clickedItemName = e.getCurrentItem().getItemMeta().getDisplayName();
 		
 		if (e.getView().getTitle().equalsIgnoreCase(TeamSelector.GUI_NAME)) {
+			if (e.getRawSlot() > 26 || e.getCurrentItem() == null) { // Max count of slot in TeamSelector GUI
+				e.setCancelled(true);
+				return;
+			}
+			
+			String clickedItemName = e.getCurrentItem().getItemMeta().getDisplayName();
 			player.closeInventory();
 			player.setScoreboard(TeamScoreboards.getInstance().addPlayerInTeam(player, clickedItemName));
+			
+			ItemStack clickedTeamItem = e.getCurrentItem();
+			ItemMeta clickedTeamItemMeta = clickedTeamItem.getItemMeta();
+			ArrayList<String> clickedTeamItemLore = new ArrayList<String>();
+			
+			Team t = TeamScoreboards.getInstance().getTeams().get(ChatColor.stripColor(clickedItemName)).getTeam();
+			clickedTeamItemMeta.setDisplayName(ChatColor.ITALIC + "" + ChatColor.WHITE + "Equipe " + t.getColor() + t.getDisplayName());
+			clickedTeamItemLore.add("");
+			clickedTeamItemMeta.setLore(clickedTeamItemLore);
+			clickedTeamItem.setItemMeta(clickedTeamItemMeta);
+			
+			player.getInventory().setItem(4, new ItemStack(clickedTeamItem));
+			player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.DARK_AQUA + "Tu as rejoins les " + t.getColor() + t.getDisplayName() + ChatColor.DARK_AQUA + " !"));
 			
 			e.setCancelled(true);
 		}

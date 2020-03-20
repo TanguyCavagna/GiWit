@@ -16,6 +16,9 @@ import org.bukkit.scoreboard.Team;
 
 import com.toguy.giwit.GiWit;
 
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
+
 /**
  * 
  * Gère toutes les équipes de l'UHC
@@ -111,8 +114,9 @@ public class TeamScoreboards {
 		player.setDisplayName(displayName);
 		player.setPlayerListName(displayName);
 		
-		this.teams.get(ChatColor.stripColor(teamToJoin)).getTeam().addEntry(player.getName());
-		
+		Team team = this.teams.get(ChatColor.stripColor(teamToJoin)).getTeam();
+		team.addEntry(player.getName());
+				
 		return this.teamScoreboard;
 	}
 	

@@ -8,6 +8,10 @@ enable-health-regen: false
 # This is the time to wait before activate the pvp in seconds. If set to -1, the pvp will be directly activated
 gentlemen-rule: 600
 
+# This is the damage amount cause by the Covid-19 given to all players of a random team at each end of any episode.
+# Each unit represent half a heart
+covid-damage-amount: 2
+
 # Enable to have a message and sound every x minutes. (This can be used for youtubers to know when to end their episodes.)
 episode-markers:
   enable: false
