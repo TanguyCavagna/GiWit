@@ -612,8 +612,9 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 						
 						for (String playerName : t.getEntries()) {
 							Player p = Bukkit.getPlayer(playerName);
-							
-							p.setHealth(p.getHealth() - covidDamageAmount);
+
+							if (p != null)
+								p.setHealth(p.getHealth() - covidDamageAmount);
 						}
 					}
 					
