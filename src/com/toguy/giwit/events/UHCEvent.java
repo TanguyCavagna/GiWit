@@ -124,31 +124,35 @@ public class UHCEvent implements Listener {
 		Block block = e.getBlock();
 		Player player = e.getPlayer();
 		
-		if (player.getGameMode() == GameMode.SURVIVAL) {
-			// Cut clean blocks
-			switch (e.getBlock().getType()) {
-				case IRON_ORE:
-					e.setCancelled(true);
-					block.setType(Material.AIR);
-					block.getWorld().dropItem(block.getLocation(), new ItemStack(Material.IRON_INGOT));
-					player.giveExp(3);
-					break;
-					
-				case GOLD_ORE:
-					e.setCancelled(true);
-					block.setType(Material.AIR);
-					block.getWorld().dropItem(block.getLocation(), new ItemStack(Material.GOLD_INGOT));
-					player.giveExp(3);
-					break;
-					
-				case SAND:
-					e.setCancelled(true);
-					block.setType(Material.AIR);
-					block.getWorld().dropItem(block.getLocation(), new ItemStack(Material.GLASS));
-					break;
-		
-				default:
-					break;
+		Plugin plugin = GiWit.getPlugin(GiWit.class);
+			
+		if (plugin.getConfig().getBoolean("scenarios.cut-clean")) {
+			if (player.getGameMode() == GameMode.SURVIVAL) {
+				// Cut clean blocks
+				switch (e.getBlock().getType()) {
+					case IRON_ORE:
+						e.setCancelled(true);
+						block.setType(Material.AIR);
+						block.getWorld().dropItem(block.getLocation(), new ItemStack(Material.IRON_INGOT));
+						player.giveExp(3);
+						break;
+						
+					case GOLD_ORE:
+						e.setCancelled(true);
+						block.setType(Material.AIR);
+						block.getWorld().dropItem(block.getLocation(), new ItemStack(Material.GOLD_INGOT));
+						player.giveExp(3);
+						break;
+						
+					case SAND:
+						e.setCancelled(true);
+						block.setType(Material.AIR);
+						block.getWorld().dropItem(block.getLocation(), new ItemStack(Material.GLASS));
+						break;
+			
+					default:
+						break;
+				}
 			}
 		}
 	}

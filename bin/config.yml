@@ -25,6 +25,11 @@ chat-prefix:
   team-prefix: '@'
   global-prefix: ''
 
+# Scenatio liste
+scenarios:
+  # Drop the coocked ore and glass directly
+  cut-clean: true
+
 border:
   #Set it to true to make the border reduce slowly
   moving: true

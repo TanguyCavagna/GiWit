@@ -19,6 +19,7 @@ public class UHCAdministrationTabCompletion implements TabCompleter {
 		if (args.length == 2) {
         	arguments.add("world");
         } else if (args.length == 1) {
+        	arguments.add("scenarios");
         	arguments.add("remake");
         	arguments.add("shrink");
         	arguments.add("start");

@@ -99,12 +99,31 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 			if (args.length <= 0) {
 				player.sendMessage("");
 				player.sendMessage(this.alternateColorForString(ChatColor.GRAY, ChatColor.WHITE, "☰☰☰☰☰☰☰☰") + ChatColor.AQUA + " /uhc" + ChatColor.RED + " [OP] " + this.alternateColorForString(ChatColor.GRAY, ChatColor.WHITE, "☰☰☰☰☰☰☰☰"));
+				player.sendMessage(ChatColor.DARK_GRAY + "> " + ChatColor.AQUA + "scenarios: " + ChatColor.WHITE + "Affiche la liste des scenarios activés et désactivés");
 				player.sendMessage(ChatColor.DARK_GRAY + "> " + ChatColor.AQUA + "remake: " + ChatColor.WHITE + "Relance un uhc sur la même map");
 				player.sendMessage(ChatColor.DARK_GRAY + "> " + ChatColor.AQUA + "remake world: " + ChatColor.WHITE + "Relance un uhc sur un nouveau monde");
 				player.sendMessage(ChatColor.DARK_GRAY + "> " + ChatColor.AQUA + "start: " + ChatColor.WHITE + "Commence l'uhc");
 				player.sendMessage(ChatColor.DARK_GRAY + "> " + ChatColor.AQUA + "shrink: " + ChatColor.WHITE + "Commence le retrecissement des bordures");
 				
 				return true;
+			}
+			
+			// Affiche tout les scenarios actifs
+			if (args[0].equalsIgnoreCase("scenarios")) {
+				if (sender instanceof Player) {
+					ArrayList<String> activated = new ArrayList<String>();
+					ArrayList<String> disabled = new ArrayList<String>();
+					
+					if (this.plugin.getConfig().getBoolean("scenarios.cut-clean"))
+						activated.add("CutClean");
+					else
+						disabled.add("CutClean");
+					
+					player.sendMessage(ChatColor.GOLD + "------------- " + ChatColor.DARK_AQUA + "Scenarios " + ChatColor.GOLD + "-------------");
+					player.sendMessage(ChatColor.DARK_AQUA + "Activés : " + (activated.size() > 0 ? ChatColor.DARK_GREEN +  String.join(", ", activated) : ChatColor.WHITE + "Aucun"));
+					player.sendMessage(ChatColor.DARK_AQUA + "Désactivés : " + (disabled.size() > 0 ? ChatColor.RED +  String.join(", ", disabled) : ChatColor.WHITE + "Aucun"));
+					player.sendMessage(ChatColor.GOLD + "-----------------------------------");
+				}
 			}
 			
 			// Re créer un monde
