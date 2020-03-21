@@ -3,11 +3,14 @@ package com.toguy.giwit.events;
 import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -116,6 +119,40 @@ public class UHCEvent implements Listener {
 		e.setFormat(ChatColor.GRAY + player.getDisplayName() + ChatColor.DARK_GRAY + " » " + ChatColor.WHITE + message);
 	}
 
+	@EventHandler
+	public void onBlockBreak(BlockBreakEvent e) {
+		Block block = e.getBlock();
+		Player player = e.getPlayer();
+		
+		if (player.getGameMode() == GameMode.SURVIVAL) {
+			// Cut clean blocks
+			switch (e.getBlock().getType()) {
+				case IRON_ORE:
+					e.setCancelled(true);
+					block.setType(Material.AIR);
+					block.getWorld().dropItem(block.getLocation(), new ItemStack(Material.IRON_INGOT));
+					player.giveExp(3);
+					break;
+					
+				case GOLD_ORE:
+					e.setCancelled(true);
+					block.setType(Material.AIR);
+					block.getWorld().dropItem(block.getLocation(), new ItemStack(Material.GOLD_INGOT));
+					player.giveExp(3);
+					break;
+					
+				case SAND:
+					e.setCancelled(true);
+					block.setType(Material.AIR);
+					block.getWorld().dropItem(block.getLocation(), new ItemStack(Material.GLASS));
+					break;
+		
+				default:
+					break;
+			}
+		}
+	}
+	
 	/**
 	 * Modifie la cible du message en fonction du préfix du message
 	 * @param e Evenement de chat

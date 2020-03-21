@@ -9,16 +9,19 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.WorldBorder;
 import org.bukkit.WorldCreator;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -248,6 +251,17 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 				// Doc nothing
 			} else {
 				e.setCancelled(true);
+			}
+		}
+		
+		// Si le joueur se fait toucher par une fleche, joue le son "ding" pour le tireur
+		if (e.getCause().equals(EntityDamageEvent.DamageCause.PROJECTILE) ) {
+			Arrow a = (Arrow)e.getDamager();
+			
+			if (a.getShooter() instanceof Player && e.getEntity() instanceof Player) {
+				Player player = (Player)a.getShooter();
+				
+				player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 1);
 			}
 		}
 	}
