@@ -162,11 +162,14 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 
 				this.isPvpEnable = false;
 				
+				if (this.board.getObjective(DisplaySlot.PLAYER_LIST) != null)
+					this.board.getObjective(DisplaySlot.PLAYER_LIST).unregister();
+				
+				Objective health = this.board.registerNewObjective("Health", "health", "Vie");
+				health.setRenderType(RenderType.HEARTS);
+				health.setDisplaySlot(DisplaySlot.PLAYER_LIST);
+
 				for (Player p : Bukkit.getOnlinePlayers()) {
-					Objective health = this.board.registerNewObjective("Health", "health", "Vie");
-					health.setRenderType(RenderType.HEARTS);
-					health.setDisplaySlot(DisplaySlot.PLAYER_LIST);
-					
 					p.setScoreboard(this.board);
 				}
 				
@@ -369,8 +372,8 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 			}
 		}
 		
-		if (teamsAlive.size() == 1) {
-			Bukkit.broadcastMessage(this.getServerMessagePrefix() + ChatColor.GOLD + " GG à la team " + teamsAlive.get(0).getColor() + teamsAlive.get(0).getName() + ChatColor.GOLD + " pour avoir gagner la partie !");
+		if (this.uhcStarted == true && teamsAlive.size() == 1) {
+			Bukkit.broadcastMessage(this.getServerMessagePrefix() + ChatColor.GOLD + " GG à la team " + teamsAlive.get(0).getColor() + teamsAlive.get(0).getName() + ChatColor.GOLD + " pour avoir gagné la partie !");
 			this.uhcStarted = false;
 			
 			return true;
@@ -619,6 +622,9 @@ public class UHCAdministrationCommand implements CommandExecutor, Listener {
 					if (startPvpTimer) {
 						if (timeBeforePvp != -1) {
 							if (timeBeforePvp <= 0) {
+								if (!isPvpEnable)
+									Bukkit.broadcastMessage(getServerMessagePrefix() + ChatColor.DARK_AQUA + "Le pvp est maintenant " + ChatColor.BOLD + "" + ChatColor.DARK_GREEN + " ACTIF " + ChatColor.RESET + "" + ChatColor.DARK_AQUA + "!");
+								
 								pvp.setSuffix(ChatColor.GREEN + "✔");
 								isPvpEnable = true;
 							} else {
